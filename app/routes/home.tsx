@@ -1,13 +1,17 @@
-import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
-}
+import { Form } from "react-router";
 
 export default function Home() {
-  return <Welcome />;
+  return (
+    <main className="p-8">
+      <h1>Pack</h1>
+      <p>You are in.</p>
+      <Form method="post" action="/logout">
+        <button
+          type="submit"
+          className="mt-4 border border-neutral-300 px-3 py-1"
+        >
+          Log out
+        </button>      </Form>
+    </main>
+  );
 }

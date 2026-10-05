@@ -3,12 +3,29 @@ import {
   Links,
   Meta,
   Outlet,
+  redirect,
   Scripts,
   ScrollRestoration,
+  type MiddlewareFunction,
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { getSession } from "./sessions.server";
 import "./app.css";
+
+export const middleware: MiddlewareFunction[] = [
+  async ({ request }, next) => {
+    const path = new URL(request.url).pathname.replace(/\.data$/, "");
+    if (path === "/login") {
+      return next();
+    }
+    const session = await getSession(request.headers.get("Cookie"));
+    if (!session.get("userId")) {
+      throw redirect("/login");
+    }
+    return next();
+  },
+];
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

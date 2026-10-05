@@ -5,3 +5,10 @@
 # React Router
 /.react-router/
 /build/
+.vercel
+.env
+.env.local
+.env*.local
+.agents/
+.claude/
+skills-lock.json
