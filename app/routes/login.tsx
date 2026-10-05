@@ -52,7 +52,8 @@ export default function Login({ actionData }: Route.ComponentProps) {
           className="mt-4 border border-neutral-300 px-3 py-1"
         >
           Log in
-        </button>      </Form>
+        </button>{" "}
+      </Form>
     </main>
   );
 }

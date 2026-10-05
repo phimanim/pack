@@ -8,11 +8,9 @@ React Router 8 (SSR) + Tailwind 4 + Neon/Drizzle + Vercel.
 
 ## Run locally
 
-```bash
 pnpm install
 vercel env pull .env.local --yes
 pnpm dev
-```
 
 Open http://localhost:5173. You should land on login.
 
@@ -29,8 +27,8 @@ Do not commit `.env.local`.
 
 ## Database
 
-Empty Drizzle schema on purpose. Later tickets add tables:
+Vocabularies (variety, process, pack notes, origin country) are rows with a stable `id`. Adding a term is data, not a code change.
 
-```bash
-pnpm exec drizzle-kit generate
-```
+pnpm db:generate
+pnpm db:migrate
+pnpm db:seed

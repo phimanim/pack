@@ -1,0 +1,9 @@
+/** lowercase, trim, non-alnum → _, collapse repeats, strip edge underscores */
+export function slugifyTerm(label: string): string {
+  return label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_|_$/g, "");
+}
