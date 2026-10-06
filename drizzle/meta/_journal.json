@@ -15,6 +15,13 @@
       "when": 1791274571348,
       "tag": "0001_flimsy_squadron_supreme",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791281052004,
+      "tag": "0002_faulty_marvel_boy",
+      "breakpoints": true
     }
   ]
 }

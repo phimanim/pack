@@ -31,6 +31,8 @@ Vocabularies (variety, process, pack notes, origin country) are rows with a stab
 
 Roasters are entities, not vocab: name plus optional country, city, url, and notes (where the company is — not coffee origin ids like `et`).
 
+Coffees are bags: a name, a roaster, and vocab ids (origin, process, varieties, pack notes) — not vocab terms and not the roaster's city/country.
+
 pnpm db:generate
 pnpm db:migrate
 pnpm db:seed

@@ -6,6 +6,14 @@ export default function Home() {
       <h1>Pack</h1>
       <p>You are in.</p>
       <p className="mt-4">
+        <Link to="/coffees" className="underline">
+          Coffees
+        </Link>
+        {" · "}
+        <Link to="/coffees/new" className="underline">
+          Add a coffee
+        </Link>
+        {" · "}
         <Link to="/roasters" className="underline">
           Roasters
         </Link>
