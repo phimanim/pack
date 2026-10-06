@@ -6,6 +6,14 @@ export default function Home() {
       <h1>Pack</h1>
       <p>You are in.</p>
       <p className="mt-4">
+        <Link to="/roasters" className="underline">
+          Roasters
+        </Link>
+        {" · "}
+        <Link to="/roasters/new" className="underline">
+          Add a roaster
+        </Link>
+        {" · "}
         <Link to="/vocab" className="underline">
           Vocabularies
         </Link>

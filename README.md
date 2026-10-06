@@ -29,6 +29,8 @@ Do not commit `.env.local`.
 
 Vocabularies (variety, process, pack notes, origin country) are rows with a stable `id`. Adding a term is data, not a code change.
 
+Roasters are entities, not vocab: name plus optional country, city, url, and notes (where the company is — not coffee origin ids like `et`).
+
 pnpm db:generate
 pnpm db:migrate
 pnpm db:seed

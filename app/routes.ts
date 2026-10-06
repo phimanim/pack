@@ -5,4 +5,7 @@ export default [
   route("login", "routes/login.tsx"),
   route("logout", "routes/logout.tsx"),
   route("vocab", "routes/vocab.tsx"),
+  route("roasters", "routes/roasters.tsx"),
+  route("roasters/new", "routes/roasters.new.tsx"),
+  route("roasters/:id", "routes/roasters.$id.tsx"),
 ] satisfies RouteConfig;

@@ -4,6 +4,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 export const vocabKinds = [
@@ -28,3 +29,15 @@ export const vocabularies = pgTable(
   },
   (t) => [primaryKey({ columns: [t.id, t.kind] })],
 );
+
+export const roasters = pgTable("roasters", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  country: text("country"),
+  city: text("city"),
+  url: text("url"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
