@@ -1,0 +1,1 @@
+ALTER TABLE "coffees" RENAME COLUMN "origin_country_id" TO "origin_country_ids";

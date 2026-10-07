@@ -22,6 +22,27 @@
       "when": 1791281052004,
       "tag": "0002_faulty_marvel_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791362022388,
+      "tag": "0003_thick_star_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791362957060,
+      "tag": "0004_slimy_golden_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791363575766,
+      "tag": "0005_omniscient_mockingbird",
+      "breakpoints": true
     }
   ]
 }

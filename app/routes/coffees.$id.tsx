@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { DateTime } from "luxon";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
 import { db } from "~/db";
@@ -7,9 +8,16 @@ import { coffees, roasters, vocabularies } from "~/db/schema";
 type CoffeeDetail = {
   id: string;
   name: string;
+  image: string | null;
+  region: string | null;
+  producer: string | null;
+  farm: string | null;
+  altitudeMeters: number | null;
+  harvestYear: number | null;
+  roastingDate: string | null;
   notes: string | null;
   roaster: { id: string; name: string };
-  originCountryLabel: string | null;
+  originCountryLabels: string[];
   processLabel: string | null;
   varietyLabels: string[];
   packNoteLabels: string[];
@@ -64,25 +72,29 @@ export async function loader({
     })
     .from(vocabularies);
 
-  const originCountryLabel = coffee.originCountryId
-    ? (terms.find(
-        (t) => t.kind === "origin_country" && t.id === coffee.originCountryId,
-      )?.label ?? null)
-    : null;
-
   const processLabel = coffee.processId
     ? (terms.find((t) => t.kind === "process" && t.id === coffee.processId)
-        ?.label ?? null)
+      ?.label ?? null)
     : null;
 
   return {
     coffee: {
       id: coffee.id,
       name: coffee.name,
+      image: coffee.image,
+      region: coffee.region,
+      producer: coffee.producer,
+      farm: coffee.farm,
+      altitudeMeters: coffee.altitudeMeters,
+      harvestYear: coffee.harvestYear,
+      roastingDate: coffee.roastingDate,
       notes: coffee.notes,
       roaster,
-      originCountryLabel,
-      processLabel,
+      originCountryLabels: labelsFor(
+        coffee.originCountryIds,
+        "origin_country",
+        terms,
+      ), processLabel,
       varietyLabels: labelsFor(coffee.varietyIds, "variety", terms),
       packNoteLabels: labelsFor(coffee.packNoteIds, "pack_note", terms),
     },
@@ -107,6 +119,9 @@ export default function CoffeeDetail({
   const navigation = useNavigation();
   const isDeleting = navigation.state !== "idle";
   const { coffee } = loaderData;
+  const roastLabel = coffee.roastingDate
+    ? DateTime.fromISO(coffee.roastingDate).toLocaleString(DateTime.DATE_MED)
+    : null;
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -116,9 +131,16 @@ export default function CoffeeDetail({
         </Link>
         {" · "}
         <Link to="/coffees" className="underline">
-          Coffees
+          Library
         </Link>
       </p>
+      {coffee.image ? (
+        <img
+          src={coffee.image}
+          alt=""
+          className="mt-4 aspect-square w-full border border-neutral-300 object-cover"
+        />
+      ) : null}
       <h1 className="mt-4 text-xl">{coffee.name}</h1>
       <p className="mt-2">
         <span className="text-sm text-neutral-500">Roaster</span>
@@ -127,11 +149,32 @@ export default function CoffeeDetail({
           {coffee.roaster.name}
         </Link>
       </p>
-      {coffee.originCountryLabel ? (
+      {coffee.originCountryLabels.length > 0 ? (
         <p className="mt-2">
           <span className="text-sm text-neutral-500">Origin country</span>
           <br />
-          {coffee.originCountryLabel}
+          {coffee.originCountryLabels.join(", ")}
+        </p>
+      ) : null}
+      {coffee.region ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Region</span>
+          <br />
+          {coffee.region}
+        </p>
+      ) : null}
+      {coffee.farm ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Farm</span>
+          <br />
+          {coffee.farm}
+        </p>
+      ) : null}
+      {coffee.producer ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Producer</span>
+          <br />
+          {coffee.producer}
         </p>
       ) : null}
       {coffee.processLabel ? (
@@ -153,6 +196,27 @@ export default function CoffeeDetail({
           <span className="text-sm text-neutral-500">Pack notes</span>
           <br />
           {coffee.packNoteLabels.join(", ")}
+        </p>
+      ) : null}
+      {roastLabel ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Roast date</span>
+          <br />
+          {roastLabel}
+        </p>
+      ) : null}
+      {coffee.harvestYear ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Harvest year</span>
+          <br />
+          {coffee.harvestYear}
+        </p>
+      ) : null}
+      {coffee.altitudeMeters != null ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Altitude</span>
+          <br />
+          {coffee.altitudeMeters} m
         </p>
       ) : null}
       {coffee.notes ? (

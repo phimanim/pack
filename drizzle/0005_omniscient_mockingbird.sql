@@ -1,0 +1,1 @@
+ALTER TABLE "coffees" ADD COLUMN "farm" text;

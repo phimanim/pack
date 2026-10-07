@@ -21,7 +21,7 @@ Open http://localhost:5173. You should land on login.
 | `DATABASE_URL` | Neon Postgres (from the Vercel Neon integration) |
 | `SESSION_SECRET` | Signs the session cookie |
 | `AUTH_PASSWORD` | The one password that unlocks the app |
-| `BLOB_READ_WRITE_TOKEN` | Later, for pack photos (Vercel Blob) |
+| `BLOB_READ_WRITE_TOKEN` | For pack photos (Vercel Blob) |
 
 Do not commit `.env.local`.
 

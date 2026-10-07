@@ -1,5 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
+  date,
   integer,
   pgTable,
   primaryKey,
@@ -49,10 +51,21 @@ export const coffees = pgTable("coffees", {
   roasterId: uuid("roaster_id")
     .notNull()
     .references(() => roasters.id),
-  originCountryId: text("origin_country_id"),
+  originCountryIds: text("origin_country_ids")
+    .array()
+    .notNull()
+    .default(sql`'{}'`),
+  region: text("region"),
+  producer: text("producer"),
+  farm: text("farm"),
   processId: text("process_id"),
   varietyIds: text("variety_ids").array().notNull().default(sql`'{}'`),
   packNoteIds: text("pack_note_ids").array().notNull().default(sql`'{}'`),
+  altitudeMeters: integer("altitude_meters"),
+  harvestYear: integer("harvest_year"),
+  roastingDate: date("roasting_date", { mode: "string" }),
+  image: text("image"),
+  owned: boolean("owned").notNull().default(false),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
