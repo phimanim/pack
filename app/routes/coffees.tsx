@@ -36,10 +36,6 @@ export default function Coffees({
   return (
     <main className="p-8">
       <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
         <Link to="/coffees/new" className="underline">
           Add a coffee
         </Link>
