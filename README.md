@@ -31,7 +31,11 @@ Vocabularies (variety, process, pack notes, origin country) are rows with a stab
 
 Roasters are entities, not vocab: name plus optional country, city, url, and notes (where the company is — not coffee origin ids like `et`).
 
-Coffees are bags: a name, a roaster, and vocab ids (origin, process, varieties, pack notes) — not vocab terms and not the roaster's city/country.
+Cafés are entities, not vocab: name plus optional city and notes. Home is not a café.
+
+Coffees are bags: optional name, optional roaster, and vocab ids (origin, process, varieties, pack notes). A café coffee you never bought is still a coffee row (`owned` false, often no photo). It stays out of the library until it has a photo or is owned.
+
+Entries are cups: a coffee, optional café (set means outside), a date, optional recipe object, optional note.
 
 pnpm db:generate
 pnpm db:migrate

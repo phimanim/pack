@@ -43,6 +43,27 @@
       "when": 1791363575766,
       "tag": "0005_omniscient_mockingbird",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791369141306,
+      "tag": "0006_hot_swordsman",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791370542351,
+      "tag": "0007_reflective_lord_hawal",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791379553076,
+      "tag": "0008_large_goblin_queen",
+      "breakpoints": true
     }
   ]
 }

@@ -3,6 +3,7 @@ import {
   boolean,
   date,
   integer,
+  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -45,12 +46,20 @@ export const roasters = pgTable("roasters", {
     .defaultNow(),
 });
 
-export const coffees = pgTable("coffees", {
+export const cafes = pgTable("cafes", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  roasterId: uuid("roaster_id")
+  city: text("city"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
-    .references(() => roasters.id),
+    .defaultNow(),
+});
+
+export const coffees = pgTable("coffees", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name"),
+  roasterId: uuid("roaster_id").references(() => roasters.id),
   originCountryIds: text("origin_country_ids")
     .array()
     .notNull()
@@ -67,6 +76,45 @@ export const coffees = pgTable("coffees", {
   image: text("image"),
   owned: boolean("owned").notNull().default(false),
   notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type Recipe = {
+  bloomSeconds?: number;
+  ratio?: string;
+  temperature?: number;
+  description?: string;
+};
+
+export const extractionIds = [
+  "filter",
+  "espresso",
+  "ibrik",
+  "turbo_shot",
+] as const;
+
+export type Extraction = (typeof extractionIds)[number];
+
+export const extractionLabels: Record<Extraction, string> = {
+  filter: "Filter",
+  espresso: "Espresso",
+  ibrik: "Ibrik",
+  turbo_shot: "Turbo shot",
+};
+
+export const entries = pgTable("entries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  coffeeId: uuid("coffee_id")
+    .notNull()
+    .references(() => coffees.id, { onDelete: "cascade" }),
+  cafeId: uuid("cafe_id").references(() => cafes.id),
+  tastedAt: date("tasted_at", { mode: "string" }).notNull(),
+  extraction: text("extraction").$type<Extraction>(),
+  recipe: jsonb("recipe").$type<Recipe>(),
+  note: text("note"),
+  image: text("image"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

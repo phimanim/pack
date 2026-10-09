@@ -5,9 +5,9 @@ import { coffees, roasters } from "~/db/schema";
 
 type CoffeeListItem = {
   id: string;
-  name: string;
+  name: string | null;
   image: string | null;
-  roasterName: string;
+  roasterName: string | null;
 };
 
 export async function loader(): Promise<{ coffees: CoffeeListItem[] }> {
@@ -19,7 +19,7 @@ export async function loader(): Promise<{ coffees: CoffeeListItem[] }> {
       roasterName: roasters.name,
     })
     .from(coffees)
-    .innerJoin(roasters, eq(coffees.roasterId, roasters.id))
+    .leftJoin(roasters, eq(coffees.roasterId, roasters.id))
     .where(or(isNotNull(coffees.image), eq(coffees.owned, true)))
     .orderBy(asc(coffees.name));
 
@@ -42,6 +42,10 @@ export default function Coffees({
         {" · "}
         <Link to="/roasters" className="underline">
           Roasters
+        </Link>
+        {" · "}
+        <Link to="/cafes" className="underline">
+          Cafés
         </Link>
         {" · "}
         <Link to="/vocab" className="underline">
@@ -72,15 +76,17 @@ export default function Coffees({
                   />
                 ) : (
                   <div className="aspect-square w-full bg-neutral-50 p-3 text-sm">
-                    {coffee.name}
+                    {coffee.name ?? "Untitled"}
                   </div>
                 )}
                 <p className="border-t border-neutral-300 px-2 py-1 text-sm">
-                  {coffee.name}
+                  {coffee.name ?? "Untitled"}
                 </p>
-                <p className="px-2 pb-2 text-xs text-neutral-500">
-                  {coffee.roasterName}
-                </p>
+                {coffee.roasterName ? (
+                  <p className="px-2 pb-2 text-xs text-neutral-500">
+                    {coffee.roasterName}
+                  </p>
+                ) : null}
               </Link>
             </li>
           ))}

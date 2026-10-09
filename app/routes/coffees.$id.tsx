@@ -7,7 +7,7 @@ import { coffees, roasters, vocabularies } from "~/db/schema";
 
 type CoffeeDetail = {
   id: string;
-  name: string;
+  name: string | null;
   image: string | null;
   region: string | null;
   producer: string | null;
@@ -16,7 +16,7 @@ type CoffeeDetail = {
   harvestYear: number | null;
   roastingDate: string | null;
   notes: string | null;
-  roaster: { id: string; name: string };
+  roaster: { id: string; name: string } | null;
   originCountryLabels: string[];
   processLabel: string | null;
   varietyLabels: string[];
@@ -54,14 +54,14 @@ export async function loader({
     throw data(null, { status: 404 });
   }
 
-  const [roaster] = await db
-    .select({ id: roasters.id, name: roasters.name })
-    .from(roasters)
-    .where(eq(roasters.id, coffee.roasterId))
-    .limit(1);
-
-  if (!roaster) {
-    throw data(null, { status: 404 });
+  let roaster: { id: string; name: string } | null = null;
+  if (coffee.roasterId) {
+    const [row] = await db
+      .select({ id: roasters.id, name: roasters.name })
+      .from(roasters)
+      .where(eq(roasters.id, coffee.roasterId))
+      .limit(1);
+    roaster = row ?? null;
   }
 
   const terms = await db
@@ -74,7 +74,7 @@ export async function loader({
 
   const processLabel = coffee.processId
     ? (terms.find((t) => t.kind === "process" && t.id === coffee.processId)
-      ?.label ?? null)
+        ?.label ?? null)
     : null;
 
   return {
@@ -94,7 +94,8 @@ export async function loader({
         coffee.originCountryIds,
         "origin_country",
         terms,
-      ), processLabel,
+      ),
+      processLabel,
       varietyLabels: labelsFor(coffee.varietyIds, "variety", terms),
       packNoteLabels: labelsFor(coffee.packNoteIds, "pack_note", terms),
     },
@@ -141,14 +142,16 @@ export default function CoffeeDetail({
           className="mt-4 aspect-square w-full border border-neutral-300 object-cover"
         />
       ) : null}
-      <h1 className="mt-4 text-xl">{coffee.name}</h1>
-      <p className="mt-2">
-        <span className="text-sm text-neutral-500">Roaster</span>
-        <br />
-        <Link to={`/roasters/${coffee.roaster.id}`} className="underline">
-          {coffee.roaster.name}
-        </Link>
-      </p>
+      <h1 className="mt-4 text-xl">{coffee.name ?? "Untitled"}</h1>
+      {coffee.roaster ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Roaster</span>
+          <br />
+          <Link to={`/roasters/${coffee.roaster.id}`} className="underline">
+            {coffee.roaster.name}
+          </Link>
+        </p>
+      ) : null}
       {coffee.originCountryLabels.length > 0 ? (
         <p className="mt-2">
           <span className="text-sm text-neutral-500">Origin country</span>
