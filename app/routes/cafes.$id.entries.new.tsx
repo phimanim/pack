@@ -52,7 +52,7 @@ type FormValues = {
   roasterId: string;
   newRoasterName: string;
   originCountryIds: string[];
-  processId: string;
+  processIds: string[];
   varietyIds: string[];
   packNoteIds: string[];
   tastedAt: string;
@@ -137,7 +137,7 @@ const schema = z
     roasterId: z.uuid().nullable(),
     newRoasterName: z.string().nullable(),
     originCountryIds: z.array(z.string()),
-    processId: z.string().nullable(),
+    processIds: z.array(z.string()),
     varietyIds: z.array(z.string()),
     packNoteIds: z.array(z.string()),
     tastedAt: z
@@ -305,7 +305,7 @@ export async function action({
     roasterId: String(formData.get("roasterId") ?? ""),
     newRoasterName: String(formData.get("newRoasterName") ?? ""),
     originCountryIds: formData.getAll("originCountryIds").map(String),
-    processId: String(formData.get("processId") ?? ""),
+    processIds: formData.getAll("processIds").map(String),
     varietyIds: formData.getAll("varietyIds").map(String),
     packNoteIds: formData.getAll("packNoteIds").map(String),
     tastedAt: String(formData.get("tastedAt") ?? ""),
@@ -333,7 +333,7 @@ export async function action({
     roasterId: blankToNull(formData.get("roasterId")),
     newRoasterName: blankToNull(formData.get("newRoasterName")),
     originCountryIds: values.originCountryIds.filter((id) => id !== ""),
-    processId: blankToNull(formData.get("processId")),
+    processIds: values.processIds.filter((id) => id !== ""),
     varietyIds: values.varietyIds.filter((id) => id !== ""),
     packNoteIds: values.packNoteIds.filter((id) => id !== ""),
     tastedAt: values.tastedAt,
@@ -396,10 +396,7 @@ export async function action({
     ) {
       return fail("Invalid origin country");
     }
-    if (
-      parsed.data.processId &&
-      !hasTerm(terms, "process", parsed.data.processId)
-    ) {
+    if (parsed.data.processIds.some((id) => !hasTerm(terms, "process", id))) {
       return fail("Invalid process");
     }
     if (parsed.data.varietyIds.some((id) => !hasTerm(terms, "variety", id))) {
@@ -430,7 +427,7 @@ export async function action({
       name: parsed.data.name,
       roasterId,
       originCountryIds: parsed.data.originCountryIds,
-      processId: parsed.data.processId,
+      processIds: parsed.data.processIds,
       varietyIds: parsed.data.varietyIds,
       packNoteIds: parsed.data.packNoteIds,
       image,
@@ -691,22 +688,26 @@ export default function NewCafeEntry({
               )}
               <AddTerm kind="origin_country" placeholder="or add a country" />
             </div>
-            <div className="flex flex-col text-sm">
-              Process
-              <select
-                name="processId"
-                defaultValue={values?.processId ?? ""}
-                className={`mt-1 cursor-pointer ${fieldClass}`}
-              >
-                <option value="">Select a process</option>
+            <fieldset className="text-sm">
+              <legend>Process</legend>
+              <div className="mt-2 flex flex-col gap-1">
                 {loaderData.processes.map((term) => (
-                  <option key={term.id} value={term.id}>
+                  <label
+                    key={term.id}
+                    className="flex cursor-pointer items-center gap-2"
+                  >
+                    <input
+                      type="checkbox"
+                      name="processIds"
+                      value={term.id}
+                      defaultChecked={values?.processIds.includes(term.id)}
+                    />
                     {term.label}
-                  </option>
+                  </label>
                 ))}
-              </select>
+              </div>
               <AddTerm kind="process" placeholder="add a process" />
-            </div>
+            </fieldset>
             <fieldset className="text-sm">
               <legend>Variety</legend>
               <div className="mt-2 flex flex-col gap-1">

@@ -18,7 +18,7 @@ type CoffeeDetail = {
   notes: string | null;
   roaster: { id: string; name: string } | null;
   originCountryLabels: string[];
-  processLabel: string | null;
+  processLabels: string[];
   varietyLabels: string[];
   packNoteLabels: string[];
 };
@@ -72,11 +72,6 @@ export async function loader({
     })
     .from(vocabularies);
 
-  const processLabel = coffee.processId
-    ? (terms.find((t) => t.kind === "process" && t.id === coffee.processId)
-        ?.label ?? null)
-    : null;
-
   return {
     coffee: {
       id: coffee.id,
@@ -95,7 +90,7 @@ export async function loader({
         "origin_country",
         terms,
       ),
-      processLabel,
+      processLabels: labelsFor(coffee.processIds, "process", terms),
       varietyLabels: labelsFor(coffee.varietyIds, "variety", terms),
       packNoteLabels: labelsFor(coffee.packNoteIds, "pack_note", terms),
     },
@@ -180,11 +175,11 @@ export default function CoffeeDetail({
           {coffee.producer}
         </p>
       ) : null}
-      {coffee.processLabel ? (
+      {coffee.processLabels.length > 0 ? (
         <p className="mt-2">
           <span className="text-sm text-neutral-500">Process</span>
           <br />
-          {coffee.processLabel}
+          {coffee.processLabels.join(", ")}
         </p>
       ) : null}
       {coffee.varietyLabels.length > 0 ? (
@@ -229,21 +224,28 @@ export default function CoffeeDetail({
           {coffee.notes}
         </p>
       ) : null}
-      <Form
-        method="post"
-        className="mt-6"
-        onSubmit={(event) => {
-          if (!confirm("Delete this coffee?")) event.preventDefault();
-        }}
-      >
-        <button
-          type="submit"
-          disabled={isDeleting}
-          className="border border-neutral-300 px-3 py-1 disabled:opacity-50"
+      <div className="mt-6 flex gap-2">
+        <Link
+          to={`/coffees/${coffee.id}/edit`}
+          className="border border-neutral-300 px-3 py-1"
         >
-          {isDeleting ? "Deleting…" : "Delete"}
-        </button>
-      </Form>
+          Edit
+        </Link>
+        <Form
+          method="post"
+          onSubmit={(event) => {
+            if (!confirm("Delete this coffee?")) event.preventDefault();
+          }}
+        >
+          <button
+            type="submit"
+            disabled={isDeleting}
+            className="border border-neutral-300 px-3 py-1 disabled:opacity-50"
+          >
+            {isDeleting ? "Deleting…" : "Delete"}
+          </button>
+        </Form>
+      </div>
     </main>
   );
 }

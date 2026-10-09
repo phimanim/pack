@@ -15,4 +15,5 @@ export default [
   route("coffees", "routes/coffees.tsx"),
   route("coffees/new", "routes/coffees.new.tsx"),
   route("coffees/:id", "routes/coffees.$id.tsx"),
+  route("coffees/:id/edit", "routes/coffees.$id.edit.tsx"),
 ] satisfies RouteConfig;

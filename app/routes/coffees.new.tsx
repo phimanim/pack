@@ -42,7 +42,7 @@ type FormValues = {
   region: string;
   producer: string;
   farm: string;
-  processId: string;
+  processIds: string[];
   varietyIds: string[];
   packNoteIds: string[];
   altitudeMeters: string;
@@ -107,7 +107,7 @@ const schema = z
     region: z.string().nullable(),
     producer: z.string().nullable(),
     farm: z.string().nullable(),
-    processId: z.string().nullable(),
+    processIds: z.array(z.string()),
     varietyIds: z.array(z.string()),
     packNoteIds: z.array(z.string()),
     altitudeMeters: z
@@ -223,7 +223,7 @@ export async function action({ request }: { request: Request }) {
     region: String(formData.get("region") ?? ""),
     producer: String(formData.get("producer") ?? ""),
     farm: String(formData.get("farm") ?? ""),
-    processId: String(formData.get("processId") ?? ""),
+    processIds: formData.getAll("processIds").map(String),
     varietyIds: formData.getAll("varietyIds").map(String),
     packNoteIds: formData.getAll("packNoteIds").map(String),
     altitudeMeters: String(formData.get("altitudeMeters") ?? ""),
@@ -252,7 +252,7 @@ export async function action({ request }: { request: Request }) {
     region: blankToNull(formData.get("region")),
     producer: blankToNull(formData.get("producer")),
     farm: blankToNull(formData.get("farm")),
-    processId: blankToNull(formData.get("processId")),
+    processIds: values.processIds.filter((id) => id !== ""),
     varietyIds: values.varietyIds.filter((id) => id !== ""),
     packNoteIds: values.packNoteIds.filter((id) => id !== ""),
     altitudeMeters,
@@ -302,10 +302,7 @@ export async function action({ request }: { request: Request }) {
   ) {
     return fail("Invalid origin country");
   }
-  if (
-    parsed.data.processId &&
-    !hasTerm(terms, "process", parsed.data.processId)
-  ) {
+  if (parsed.data.processIds.some((id) => !hasTerm(terms, "process", id))) {
     return fail("Invalid process");
   }
   if (parsed.data.varietyIds.some((id) => !hasTerm(terms, "variety", id))) {
@@ -337,7 +334,7 @@ export async function action({ request }: { request: Request }) {
     region: parsed.data.region,
     producer: parsed.data.producer,
     farm: parsed.data.farm,
-    processId: parsed.data.processId,
+    processIds: parsed.data.processIds,
     varietyIds: parsed.data.varietyIds,
     packNoteIds: parsed.data.packNoteIds,
     altitudeMeters: parsed.data.altitudeMeters,
@@ -589,22 +586,26 @@ export default function NewCoffee({
             className={fieldClass}
           />
         </label>
-        <div className="flex flex-col text-sm">
-          Process
-          <select
-            name="processId"
-            defaultValue={values?.processId ?? ""}
-            className={`mt-1 cursor-pointer ${fieldClass}`}
-          >
-            <option value="">Select a process</option>
+        <fieldset className="text-sm">
+          <legend>Process</legend>
+          <div className="mt-2 flex flex-col gap-1">
             {loaderData.processes.map((term) => (
-              <option key={term.id} value={term.id}>
+              <label
+                key={term.id}
+                className="flex cursor-pointer items-center gap-2"
+              >
+                <input
+                  type="checkbox"
+                  name="processIds"
+                  value={term.id}
+                  defaultChecked={values?.processIds.includes(term.id)}
+                />
                 {term.label}
-              </option>
+              </label>
             ))}
-          </select>
+          </div>
           <AddTerm kind="process" placeholder="add a process" />
-        </div>
+        </fieldset>
         <fieldset className="text-sm">
           <legend>Variety</legend>
           <div className="mt-2 flex flex-col gap-1">

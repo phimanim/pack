@@ -67,7 +67,7 @@ export const coffees = pgTable("coffees", {
   region: text("region"),
   producer: text("producer"),
   farm: text("farm"),
-  processId: text("process_id"),
+  processIds: text("process_ids").array().notNull().default(sql`'{}'`),
   varietyIds: text("variety_ids").array().notNull().default(sql`'{}'`),
   packNoteIds: text("pack_note_ids").array().notNull().default(sql`'{}'`),
   altitudeMeters: integer("altitude_meters"),

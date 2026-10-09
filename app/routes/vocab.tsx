@@ -12,7 +12,7 @@ type ActionData =
   | {
       pick: {
         varietyIds: string[];
-        processId: string | null;
+        processIds: string[];
         packNoteIds: string[];
         country: string | null;
       };
@@ -27,7 +27,7 @@ const addTermSchema = z.object({
 
 const sectionCopy: Record<VocabKind, { title: string; pick: string }> = {
   variety: { title: "Variety", pick: "Multi-select (stored: variety ids)" },
-  process: { title: "Process", pick: "One (stored: process id)" },
+  process: { title: "Process", pick: "Multi-select (stored: process ids)" },
   pack_note: { title: "Pack notes", pick: "Multi-select (stored: note ids)" },
   origin_country: {
     title: "Origin country",
@@ -63,7 +63,7 @@ export async function action({ request }: Route.ActionArgs) {
     const pick: ActionData = {
       pick: {
         varietyIds: formData.getAll("varietyIds").map(String),
-        processId: String(formData.get("processId") ?? "") || null,
+        processIds: formData.getAll("processIds").map(String),
         packNoteIds: formData.getAll("packNoteIds").map(String),
         country: String(formData.get("country") ?? "") || null,
       },
@@ -194,8 +194,8 @@ export default function Vocab({
                   <label key={term.id} className="flex items-center gap-2">
                     <input
                       form="pick-demo"
-                      type="radio"
-                      name="processId"
+                      type="checkbox"
+                      name="processIds"
                       value={term.id}
                     />
                     {term.label}
