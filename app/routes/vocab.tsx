@@ -2,6 +2,14 @@ import { and, asc, eq, max } from "drizzle-orm";
 import { data, Form, Link, redirect } from "react-router";
 import { z } from "zod";
 import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { db } from "~/db";
 import { type VocabKind, vocabKinds, vocabularies } from "~/db/schema";
 import { slugifyTerm } from "~/lib/slug";
@@ -159,6 +167,13 @@ export default function Vocab({
 
       {(vocabKinds as readonly VocabKind[]).map((kind) => {
         const terms = termsByKind[kind];
+        const countryItems = [
+          { label: "—", value: null },
+          ...terms.map((term) => ({
+            label: term.label,
+            value: term.id,
+          })),
+        ];
         return (
           <section key={kind} className="mt-8 border border-neutral-300 p-4">
             <h2 className="text-lg">{sectionCopy[kind].title}</h2>
@@ -220,19 +235,27 @@ export default function Vocab({
               </div>
             ) : null}
             {kind === "origin_country" ? (
-              <select
-                form="pick-demo"
+              <Select
                 name="country"
-                className="mt-2 border border-neutral-300 bg-transparent px-2 py-1"
-                defaultValue=""
+                form="pick-demo"
+                defaultValue={null}
+                items={countryItems}
               >
-                <option value="">—</option>
-                {terms.map((term) => (
-                  <option key={term.id} value={term.id}>
-                    {term.label}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="mt-2 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {countryItems
+                      .filter((item) => item.value != null)
+                      .map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             ) : null}
 
             <Form method="post" className="mt-4 flex flex-wrap items-end gap-2">

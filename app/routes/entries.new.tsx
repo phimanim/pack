@@ -12,6 +12,14 @@ import {
 } from "react-router";
 import { z } from "zod";
 import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { db } from "~/db";
 import {
   cafes,
@@ -549,6 +557,41 @@ export default function NewEntry({
   const [isBlend, setIsBlend] = useState(
     (values?.originCountryIds.length ?? 0) > 1,
   );
+  const cafeItems = [
+    { label: "Select a café", value: null },
+    ...loaderData.cafes.map((cafe) => ({
+      label: cafe.name,
+      value: cafe.id,
+    })),
+  ];
+  const coffeeItems = [
+    { label: "Select a coffee", value: null },
+    ...loaderData.coffees.map((coffee) => ({
+      label: coffeeLabel(coffee),
+      value: coffee.id,
+    })),
+  ];
+  const roasterItems = [
+    { label: "Select a roaster", value: null },
+    ...loaderData.roasters.map((roaster) => ({
+      label: roaster.name,
+      value: roaster.id,
+    })),
+  ];
+  const originCountryItems = [
+    { label: "Select a country", value: null },
+    ...loaderData.originCountries.map((term) => ({
+      label: term.label,
+      value: term.id,
+    })),
+  ];
+  const extractionItems = [
+    { label: "Select extraction", value: null },
+    ...extractionIds.map((id) => ({
+      label: extractionLabels[id],
+      value: id,
+    })),
+  ];
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -572,18 +615,26 @@ export default function NewEntry({
       >
         <label className="flex flex-col text-sm">
           Café
-          <select
+          <Select
             name="cafeId"
-            defaultValue={values?.cafeId ?? loaderData.selectedCafeId ?? ""}
-            className={`mt-1 cursor-pointer ${fieldClass}`}
+            defaultValue={(values?.cafeId ?? loaderData.selectedCafeId) || null}
+            items={cafeItems}
           >
-            <option value="">Select a café</option>
-            {loaderData.cafes.map((cafe) => (
-              <option key={cafe.id} value={cafe.id}>
-                {cafe.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="mt-1 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {cafeItems
+                  .filter((item) => item.value != null)
+                  .map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </label>
         <fieldset className="flex flex-col gap-2 border border-neutral-300 p-3 text-sm">
           <legend>Or create a café</legend>
@@ -640,18 +691,26 @@ export default function NewEntry({
         {mode === "existing" ? (
           <label className="flex flex-col text-sm">
             Coffee
-            <select
+            <Select
               name="coffeeId"
-              defaultValue={values?.coffeeId ?? ""}
-              className={`mt-1 cursor-pointer ${fieldClass}`}
+              defaultValue={values?.coffeeId || null}
+              items={coffeeItems}
             >
-              <option value="">Select a coffee</option>
-              {loaderData.coffees.map((coffee) => (
-                <option key={coffee.id} value={coffee.id}>
-                  {coffeeLabel(coffee)}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="mt-1 w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {coffeeItems
+                    .filter((item) => item.value != null)
+                    .map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </label>
         ) : (
           <>
@@ -680,18 +739,26 @@ export default function NewEntry({
             </label>
             <label className="flex flex-col text-sm">
               Roaster
-              <select
+              <Select
                 name="roasterId"
-                defaultValue={values?.roasterId ?? ""}
-                className={`mt-1 cursor-pointer ${fieldClass}`}
+                defaultValue={values?.roasterId || null}
+                items={roasterItems}
               >
-                <option value="">Select a roaster</option>
-                {loaderData.roasters.map((roaster) => (
-                  <option key={roaster.id} value={roaster.id}>
-                    {roaster.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="mt-1 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {roasterItems
+                      .filter((item) => item.value != null)
+                      .map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </label>
             <label className="flex flex-col text-sm">
               Or create a roaster
@@ -731,18 +798,26 @@ export default function NewEntry({
                   ))}
                 </div>
               ) : (
-                <select
+                <Select
                   name="originCountryIds"
-                  defaultValue={values?.originCountryIds[0] ?? ""}
-                  className={`mt-2 cursor-pointer ${fieldClass}`}
+                  defaultValue={values?.originCountryIds[0] || null}
+                  items={originCountryItems}
                 >
-                  <option value="">Select a country</option>
-                  {loaderData.originCountries.map((term) => (
-                    <option key={term.id} value={term.id}>
-                      {term.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="mt-2 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {originCountryItems
+                        .filter((item) => item.value != null)
+                        .map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               )}
               <AddTerm kind="origin_country" placeholder="or add a country" />
             </div>
@@ -836,18 +911,26 @@ export default function NewEntry({
         </label>
         <label className="flex flex-col text-sm">
           Extraction
-          <select
+          <Select
             name="extraction"
-            defaultValue={values?.extraction ?? ""}
-            className={`mt-1 cursor-pointer ${fieldClass}`}
+            defaultValue={values?.extraction || null}
+            items={extractionItems}
           >
-            <option value="">Select extraction</option>
-            {extractionIds.map((id) => (
-              <option key={id} value={id}>
-                {extractionLabels[id]}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="mt-1 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {extractionItems
+                  .filter((item) => item.value != null)
+                  .map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </label>
         <label className="flex flex-col text-sm">
           Bloom (seconds)

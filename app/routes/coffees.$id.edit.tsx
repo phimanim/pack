@@ -12,6 +12,14 @@ import {
 } from "react-router";
 import { z } from "zod";
 import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { db } from "~/db";
 import {
   coffees,
@@ -503,6 +511,20 @@ export default function EditCoffee({
   const filteredRoasters = roasterOptions.filter((roaster) =>
     roaster.name.toLowerCase().includes(roasterQuery.trim().toLowerCase()),
   );
+  const roasterItems = [
+    { label: "Select a roaster", value: null },
+    ...filteredRoasters.map((roaster) => ({
+      label: roaster.name,
+      value: roaster.id,
+    })),
+  ];
+  const originCountryItems = [
+    { label: "Select a country", value: null },
+    ...loaderData.originCountries.map((term) => ({
+      label: term.label,
+      value: term.id,
+    })),
+  ];
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -559,18 +581,26 @@ export default function EditCoffee({
             onChange={(event) => setRoasterQuery(event.target.value)}
             placeholder="Search roasters"
           />
-          <select
+          <Select
             name="roasterId"
-            defaultValue={values?.roasterId ?? ""}
-            className={`cursor-pointer ${fieldClass}`}
+            defaultValue={values?.roasterId || null}
+            items={roasterItems}
           >
-            <option value="">Select a roaster</option>
-            {filteredRoasters.map((roaster) => (
-              <option key={roaster.id} value={roaster.id}>
-                {roaster.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {roasterItems
+                  .filter((item) => item.value != null)
+                  .map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         <fieldset className="flex flex-col gap-2 border border-neutral-300 p-3 text-sm">
           <legend>Or create a roaster</legend>
@@ -635,18 +665,26 @@ export default function EditCoffee({
               ))}
             </div>
           ) : (
-            <select
+            <Select
               name="originCountryIds"
-              defaultValue={values?.originCountryIds[0] ?? ""}
-              className={`mt-2 cursor-pointer ${fieldClass}`}
+              defaultValue={values?.originCountryIds[0] || null}
+              items={originCountryItems}
             >
-              <option value="">Select a country</option>
-              {loaderData.originCountries.map((term) => (
-                <option key={term.id} value={term.id}>
-                  {term.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="mt-2 w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {originCountryItems
+                    .filter((item) => item.value != null)
+                    .map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           )}
           <AddTerm kind="origin_country" placeholder="or add a country" />
         </div>
