@@ -266,9 +266,7 @@ export default function Vocab({
                 Add a term
                 <Input name="label" required />
               </label>
-              <Button type="submit">
-                Add
-              </Button>
+              <Button type="submit">Add</Button>
             </Form>
             {actionData &&
             "error" in actionData &&

@@ -2,14 +2,7 @@ import { put } from "@vercel/blob";
 import { and, asc, eq, max } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { useState } from "react";
-import {
-  data,
-  Form,
-  Link,
-  redirect,
-  useFetcher,
-  useNavigation,
-} from "react-router";
+import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -21,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { VocabCombobox } from "~/components/vocab-combobox";
 import { db } from "~/db";
 import {
   cafes,
@@ -30,7 +24,6 @@ import {
   extractionLabels,
   type Recipe,
   roasters,
-  type VocabKind,
   vocabKinds,
   vocabularies,
 } from "~/db/schema";
@@ -294,7 +287,7 @@ export async function action({ request }: { request: Request }) {
       label,
       sort: (agg?.m ?? 0) + 1,
     });
-    return data({ error: "" });
+    return data({ error: "", id, label });
   }
 
   const coffeeMode =
@@ -499,48 +492,6 @@ export async function action({ request }: { request: Request }) {
   throw redirect(`/cafes/${cafeId}`);
 }
 
-function AddTerm({
-  kind,
-  placeholder,
-}: {
-  kind: VocabKind;
-  placeholder: string;
-}) {
-  const fetcher = useFetcher<ActionData>();
-  const [label, setLabel] = useState("");
-
-  return (
-    <div className="mt-1">
-      <div className="flex gap-2">
-        <Input
-          value={label}
-          onChange={(event) => setLabel(event.target.value)}
-          placeholder={placeholder}
-          className="min-w-0 flex-1"
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={fetcher.state !== "idle"}
-          onClick={() => {
-            fetcher.submit(
-              { intent: "add_term", kind, label },
-              { method: "post" },
-            );
-            setLabel("");
-          }}
-        >
-          Add
-        </Button>
-      </div>
-      {fetcher.data?.error ? (
-        <p className="mt-1 text-sm">{fetcher.data.error}</p>
-      ) : null}
-    </div>
-  );
-}
-
 export default function NewEntry({
   loaderData,
   actionData,
@@ -578,13 +529,6 @@ export default function NewEntry({
     ...loaderData.roasters.map((roaster) => ({
       label: roaster.name,
       value: roaster.id,
-    })),
-  ];
-  const originCountryItems = [
-    { label: "Select a country", value: null },
-    ...loaderData.originCountries.map((term) => ({
-      label: term.label,
-      value: term.id,
     })),
   ];
   const extractionItems = [
@@ -780,108 +724,44 @@ export default function NewEntry({
                 />
                 Is it a blend?
               </label>
-              {isBlend ? (
-                <div className="mt-2 flex flex-col gap-1">
-                  {loaderData.originCountries.map((term) => (
-                    <label
-                      key={term.id}
-                      className="flex cursor-pointer items-center gap-2"
-                    >
-                      <input
-                        type="checkbox"
-                        name="originCountryIds"
-                        value={term.id}
-                        defaultChecked={values?.originCountryIds.includes(
-                          term.id,
-                        )}
-                      />
-                      {term.label}
-                    </label>
-                  ))}
-                </div>
-              ) : (
-                <Select
-                  name="originCountryIds"
-                  defaultValue={values?.originCountryIds[0] || null}
-                  items={originCountryItems}
-                >
-                  <SelectTrigger className="mt-2 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {originCountryItems
-                        .filter((item) => item.value != null)
-                        .map((item) => (
-                          <SelectItem key={item.value} value={item.value}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              )}
-              <AddTerm kind="origin_country" placeholder="or add a country" />
+              <VocabCombobox
+                kind="origin_country"
+                name="originCountryIds"
+                terms={loaderData.originCountries}
+                defaultIds={values?.originCountryIds}
+                placeholder="Search or add a country"
+                multiple={isBlend}
+              />
             </div>
             <fieldset className="text-sm">
               <legend>Process</legend>
-              <div className="mt-2 flex flex-col gap-1">
-                {loaderData.processes.map((term) => (
-                  <label
-                    key={term.id}
-                    className="flex cursor-pointer items-center gap-2"
-                  >
-                    <input
-                      type="checkbox"
-                      name="processIds"
-                      value={term.id}
-                      defaultChecked={values?.processIds.includes(term.id)}
-                    />
-                    {term.label}
-                  </label>
-                ))}
-              </div>
-              <AddTerm kind="process" placeholder="add a process" />
+              <VocabCombobox
+                kind="process"
+                name="processIds"
+                terms={loaderData.processes}
+                defaultIds={values?.processIds}
+                placeholder="Search or add a proce"
+              />
             </fieldset>
             <fieldset className="text-sm">
               <legend>Variety</legend>
-              <div className="mt-2 flex flex-col gap-1">
-                {loaderData.varieties.map((term) => (
-                  <label
-                    key={term.id}
-                    className="flex cursor-pointer items-center gap-2"
-                  >
-                    <input
-                      type="checkbox"
-                      name="varietyIds"
-                      value={term.id}
-                      defaultChecked={values?.varietyIds.includes(term.id)}
-                    />
-                    {term.label}
-                  </label>
-                ))}
-              </div>
-              <AddTerm kind="variety" placeholder="add a variety" />
+              <VocabCombobox
+                kind="variety"
+                name="varietyIds"
+                terms={loaderData.varieties}
+                defaultIds={values?.varietyIds}
+                placeholder="Search or add a variety"
+              />
             </fieldset>
             <fieldset className="text-sm">
               <legend>Pack notes</legend>
-              <div className="mt-2 flex flex-col gap-1">
-                {loaderData.packNotes.map((term) => (
-                  <label
-                    key={term.id}
-                    className="flex cursor-pointer items-center gap-2"
-                  >
-                    <input
-                      type="checkbox"
-                      name="packNoteIds"
-                      value={term.id}
-                      defaultChecked={values?.packNoteIds.includes(term.id)}
-                    />
-                    {term.label}
-                  </label>
-                ))}
-              </div>
-              <AddTerm kind="pack_note" placeholder="add a note" />
+              <VocabCombobox
+                kind="pack_note"
+                name="packNoteIds"
+                terms={loaderData.packNotes}
+                defaultIds={values?.packNoteIds}
+                placeholder="Search or add a pack note"
+              />
             </fieldset>
           </>
         )}
