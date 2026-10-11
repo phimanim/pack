@@ -12,6 +12,7 @@ export default [
   route("cafes/new", "routes/cafes.new.tsx"),
   route("cafes/:id", "routes/cafes.$id.tsx"),
   route("cafes/:id/entries/new", "routes/cafes.$id.entries.new.tsx"),
+  route("entries/new", "routes/entries.new.tsx"),
   route("coffees", "routes/coffees.tsx"),
   route("coffees/new", "routes/coffees.new.tsx"),
   route("coffees/:id", "routes/coffees.$id.tsx"),

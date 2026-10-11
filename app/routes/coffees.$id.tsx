@@ -16,6 +16,7 @@ type CoffeeDetail = {
   harvestYear: number | null;
   roastingDate: string | null;
   notes: string | null;
+  owned: boolean;
   roaster: { id: string; name: string } | null;
   originCountryLabels: string[];
   processLabels: string[];
@@ -84,6 +85,7 @@ export async function loader({
       harvestYear: coffee.harvestYear,
       roastingDate: coffee.roastingDate,
       notes: coffee.notes,
+      owned: coffee.owned,
       roaster,
       originCountryLabels: labelsFor(
         coffee.originCountryIds,
@@ -224,7 +226,23 @@ export default function CoffeeDetail({
           {coffee.notes}
         </p>
       ) : null}
-      <div className="mt-6 flex gap-2">
+      <div className="mt-6 flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={coffee.owned}
+          disabled
+          className="h-4 w-4"
+        />
+        <span>
+          <span className="font-medium">In my home library</span>
+          <span className="block text-xs text-neutral-500">
+            {coffee.owned
+              ? "You bought this coffee for your home library."
+              : "You drank this coffee somewhere else."}
+          </span>
+        </span>
+      </div>
+      <div className="mt-4 flex gap-2">
         <Link
           to={`/coffees/${coffee.id}/edit`}
           className="border border-neutral-300 px-3 py-1"

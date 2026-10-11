@@ -31,6 +31,10 @@ export default function Cafes({
         <Link to="/cafes/new" className="underline">
           Add a café
         </Link>
+        {" · "}
+        <Link to="/entries/new" className="underline">
+          Log a cup
+        </Link>
       </p>
       <h1 className="mt-4 text-xl">Cafés</h1>
       {items.length === 0 ? (

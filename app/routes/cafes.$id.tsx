@@ -116,7 +116,7 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
           Cafés
         </Link>
         {" · "}
-        <Link to={`/cafes/${cafe.id}/entries/new`} className="underline">
+        <Link to={`/entries/new?cafeId=${cafe.id}`} className="underline">
           Log a cup
         </Link>
       </p>
@@ -140,7 +140,7 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
       {cups.length === 0 ? (
         <p className="mt-2 text-sm text-neutral-500">
           No cups yet.{" "}
-          <Link to={`/cafes/${cafe.id}/entries/new`} className="underline">
+          <Link to={`/entries/new?cafeId=${cafe.id}`} className="underline">
             Log a cup
           </Link>
         </p>

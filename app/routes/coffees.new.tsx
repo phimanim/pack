@@ -49,6 +49,7 @@ type FormValues = {
   harvestYear: string;
   roastingDate: string;
   notes: string;
+  owned: boolean;
 };
 
 type ActionData = {
@@ -230,6 +231,7 @@ export async function action({ request }: { request: Request }) {
     harvestYear: String(formData.get("harvestYear") ?? ""),
     roastingDate: String(formData.get("roastingDate") ?? ""),
     notes: String(formData.get("notes") ?? ""),
+    owned: formData.get("owned") === "true",
   };
 
   const fail = (message: string, status = 400) =>
@@ -343,7 +345,7 @@ export async function action({ request }: { request: Request }) {
       ? DateTime.fromISO(parsed.data.roastingDate, { zone: "utc" }).toISODate()
       : null,
     image,
-    owned: true,
+    owned: values.owned,
     notes: parsed.data.notes,
   });
 
@@ -684,6 +686,22 @@ export default function NewCoffee({
             defaultValue={values?.notes ?? ""}
             className={fieldClass}
           />
+        </label>
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="owned"
+            value="true"
+            defaultChecked={values?.owned ?? true}
+            className="h-4 w-4 cursor-pointer"
+          />
+          <span>
+            <span className="font-medium">In my home library</span>
+            <span className="block text-xs text-neutral-500">
+              Check if you bought this coffee. Uncheck if you drank it at a café
+              or somewhere else.
+            </span>
+          </span>
         </label>
         <button
           type="submit"
