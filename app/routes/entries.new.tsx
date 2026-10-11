@@ -11,6 +11,7 @@ import {
   useNavigation,
 } from "react-router";
 import { z } from "zod";
+import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
   Select,
@@ -517,10 +518,11 @@ function AddTerm({
           placeholder={placeholder}
           className="min-w-0 flex-1"
         />
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           disabled={fetcher.state !== "idle"}
-          className="cursor-pointer border border-neutral-300 px-2 py-1 disabled:opacity-50"
           onClick={() => {
             fetcher.submit(
               { intent: "add_term", kind, label },
@@ -530,7 +532,7 @@ function AddTerm({
           }}
         >
           Add
-        </button>
+        </Button>
       </div>
       {fetcher.data?.error ? (
         <p className="mt-1 text-sm">{fetcher.data.error}</p>
@@ -977,13 +979,9 @@ export default function NewEntry({
             className={fieldClass}
           />
         </label>
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="cursor-pointer self-start border border-neutral-300 px-3 py-1 disabled:opacity-50"
-        >
+        <Button type="submit" className="self-start" disabled={isSaving}>
           {isSaving ? "Saving…" : "Save"}
-        </button>
+        </Button>
       </Form>
     </main>
   );

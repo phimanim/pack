@@ -1,5 +1,6 @@
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { db } from "~/db";
 import { roasters } from "~/db/schema";
@@ -124,13 +125,9 @@ export default function NewRoaster({
             className={fieldClass}
           />
         </label>
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="self-start border border-neutral-300 px-3 py-1 disabled:opacity-50"
-        >
+        <Button type="submit" className="self-start" disabled={isSaving}>
           {isSaving ? "Saving…" : "Save"}
-        </button>
+        </Button>
       </Form>
     </main>
   );

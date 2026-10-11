@@ -1,5 +1,6 @@
 import { asc, eq, isNotNull, or } from "drizzle-orm";
 import { Form, Link } from "react-router";
+import { Button } from "~/components/ui/button";
 import { db } from "~/db";
 import { coffees, roasters } from "~/db/schema";
 
@@ -97,12 +98,9 @@ export default function Coffees({
         </ul>
       )}
       <Form method="post" action="/logout">
-        <button
-          type="submit"
-          className="mt-6 border border-neutral-300 px-3 py-1"
-        >
+        <Button type="submit" variant="outline" className="mt-6">
           Log out
-        </button>
+        </Button>
       </Form>
     </main>
   );

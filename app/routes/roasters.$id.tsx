@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { Button } from "~/components/ui/button";
 import { db } from "~/db";
 import { roasters } from "~/db/schema";
 
@@ -97,13 +98,9 @@ export default function RoasterDetail({
           if (!confirm("Delete this roaster?")) event.preventDefault();
         }}
       >
-        <button
-          type="submit"
-          disabled={isDeleting}
-          className="border border-neutral-300 px-3 py-1 disabled:opacity-50"
-        >
+        <Button type="submit" variant="outline" disabled={isDeleting}>
           {isDeleting ? "Deleting…" : "Delete"}
-        </button>
+        </Button>
       </Form>
     </main>
   );

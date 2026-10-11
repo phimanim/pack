@@ -1,6 +1,7 @@
 import { and, asc, eq, max } from "drizzle-orm";
 import { data, Form, Link, redirect } from "react-router";
 import { z } from "zod";
+import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
   Select,
@@ -265,12 +266,9 @@ export default function Vocab({
                 Add a term
                 <Input name="label" required />
               </label>
-              <button
-                type="submit"
-                className="border border-neutral-300 px-3 py-1"
-              >
+              <Button type="submit">
                 Add
-              </button>
+              </Button>
             </Form>
             {actionData &&
             "error" in actionData &&
@@ -282,13 +280,9 @@ export default function Vocab({
       })}
 
       <div className="mt-8">
-        <button
-          form="pick-demo"
-          type="submit"
-          className="border border-neutral-300 px-3 py-1"
-        >
+        <Button form="pick-demo" type="submit" variant="outline">
           Show stored ids
-        </button>
+        </Button>
         {actionData && "pick" in actionData ? (
           <pre className="mt-4 overflow-x-auto border border-neutral-300 p-3 text-sm">
             {JSON.stringify(actionData.pick, null, 2)}
