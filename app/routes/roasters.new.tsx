@@ -1,5 +1,6 @@
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { Input } from "~/components/ui/input";
 import { db } from "~/db";
 import { roasters } from "~/db/schema";
 
@@ -100,36 +101,19 @@ export default function NewRoaster({
       <Form method="post" className="mt-4 flex flex-col gap-4">
         <label className="flex flex-col text-sm">
           Name
-          <input
-            name="name"
-            required
-            defaultValue={values?.name ?? ""}
-            className={fieldClass}
-          />
+          <Input name="name" required defaultValue={values?.name ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
           Country
-          <input
-            name="country"
-            defaultValue={values?.country ?? ""}
-            className={fieldClass}
-          />
+          <Input name="country" defaultValue={values?.country ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
           City
-          <input
-            name="city"
-            defaultValue={values?.city ?? ""}
-            className={fieldClass}
-          />
+          <Input name="city" defaultValue={values?.city ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
           URL
-          <input
-            name="url"
-            defaultValue={values?.url ?? ""}
-            className={fieldClass}
-          />
+          <Input name="url" defaultValue={values?.url ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
           Notes

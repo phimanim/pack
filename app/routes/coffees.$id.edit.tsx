@@ -11,6 +11,7 @@ import {
   useNavigation,
 } from "react-router";
 import { z } from "zod";
+import { Input } from "~/components/ui/input";
 import { db } from "~/db";
 import {
   coffees,
@@ -455,11 +456,11 @@ function AddTerm({
   return (
     <div className="mt-1">
       <div className="flex gap-2">
-        <input
+        <Input
           value={label}
           onChange={(event) => setLabel(event.target.value)}
           placeholder={placeholder}
-          className={`min-w-0 flex-1 ${fieldClass}`}
+          className="min-w-0 flex-1"
         />
         <button
           type="button"
@@ -544,21 +545,19 @@ export default function EditCoffee({
         </label>
         <label className="flex flex-col text-sm">
           Name *
-          <input
+          <Input
             name="name"
             required
             placeholder="Las Flores"
             defaultValue={values?.name ?? ""}
-            className={fieldClass}
           />
         </label>
         <div className="flex flex-col gap-1 text-sm">
           <span>Roaster *</span>
-          <input
+          <Input
             value={roasterQuery}
             onChange={(event) => setRoasterQuery(event.target.value)}
             placeholder="Search roasters"
-            className={fieldClass}
           />
           <select
             name="roasterId"
@@ -577,38 +576,34 @@ export default function EditCoffee({
           <legend>Or create a roaster</legend>
           <label className="flex flex-col">
             Name
-            <input
+            <Input
               name="newRoasterName"
               placeholder="April"
               defaultValue={values?.newRoasterName ?? ""}
-              className={fieldClass}
             />
           </label>
           <label className="flex flex-col">
             Country
-            <input
+            <Input
               name="newRoasterCountry"
               placeholder="France"
               defaultValue={values?.newRoasterCountry ?? ""}
-              className={fieldClass}
             />
           </label>
           <label className="flex flex-col">
             City
-            <input
+            <Input
               name="newRoasterCity"
               placeholder="Paris"
               defaultValue={values?.newRoasterCity ?? ""}
-              className={fieldClass}
             />
           </label>
           <label className="flex flex-col">
             URL
-            <input
+            <Input
               name="newRoasterUrl"
               placeholder="https://"
               defaultValue={values?.newRoasterUrl ?? ""}
-              className={fieldClass}
             />
           </label>
         </fieldset>
@@ -657,29 +652,26 @@ export default function EditCoffee({
         </div>
         <label className="flex flex-col text-sm">
           Region
-          <input
+          <Input
             name="region"
             placeholder="Yirgacheffe"
             defaultValue={values?.region ?? ""}
-            className={fieldClass}
           />
         </label>
         <label className="flex flex-col text-sm">
           Farm
-          <input
+          <Input
             name="farm"
             placeholder="Finca La Esperanza"
             defaultValue={values?.farm ?? ""}
-            className={fieldClass}
           />
         </label>
         <label className="flex flex-col text-sm">
           Producer
-          <input
+          <Input
             name="producer"
             placeholder="Lopez family"
             defaultValue={values?.producer ?? ""}
-            className={fieldClass}
           />
         </label>
         <fieldset className="text-sm">
@@ -744,31 +736,29 @@ export default function EditCoffee({
         </fieldset>
         <label className="flex flex-col text-sm">
           Roast date
-          <input
+          <Input
             type="date"
             name="roastingDate"
             defaultValue={values?.roastingDate ?? ""}
-            className={`cursor-pointer ${fieldClass}`}
+            className="cursor-pointer"
           />
         </label>
         <label className="flex flex-col text-sm">
           Harvest year
-          <input
+          <Input
             name="harvestYear"
             inputMode="numeric"
             placeholder="2025"
             defaultValue={values?.harvestYear?.toString() ?? ""}
-            className={fieldClass}
           />
         </label>
         <label className="flex flex-col text-sm">
           Altitude (m)
-          <input
+          <Input
             name="altitudeMeters"
             inputMode="numeric"
             placeholder="1800"
             defaultValue={values?.altitudeMeters?.toString() ?? ""}
-            className={fieldClass}
           />
         </label>
         <label className="flex flex-col text-sm">

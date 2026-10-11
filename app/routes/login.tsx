@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { data, Form, redirect } from "react-router";
+import { Input } from "~/components/ui/input";
 import { commitSession, getSession } from "~/sessions.server";
 import type { Route } from "./+types/login";
 
@@ -45,7 +46,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
       <Form method="post">
         <label>
           Password
-          <input type="password" name="password" required autoFocus />
+          <Input type="password" name="password" required autoFocus />
         </label>
         <button
           type="submit"

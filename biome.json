@@ -32,7 +32,13 @@
       "preset": "recommended",
       "a11y": {
         "noAutofocus": "off",
-        "noSvgWithoutTitle": "off"
+        "noSvgWithoutTitle": "off",
+        "noLabelWithoutControl": {
+          "level": "error",
+          "options": {
+            "inputComponents": ["Input"]
+          }
+        }
       },
       "style": {
         "noNonNullAssertion": "off"

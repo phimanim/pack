@@ -1,5 +1,6 @@
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { Input } from "~/components/ui/input";
 import { db } from "~/db";
 import { cafes } from "~/db/schema";
 
@@ -81,20 +82,11 @@ export default function NewCafe({ actionData }: { actionData?: ActionData }) {
       <Form method="post" className="mt-4 flex flex-col gap-4">
         <label className="flex flex-col text-sm">
           Name
-          <input
-            name="name"
-            required
-            defaultValue={values?.name ?? ""}
-            className={fieldClass}
-          />
+          <Input name="name" required defaultValue={values?.name ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
           City
-          <input
-            name="city"
-            defaultValue={values?.city ?? ""}
-            className={fieldClass}
-          />
+          <Input name="city" defaultValue={values?.city ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
           Notes

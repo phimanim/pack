@@ -1,6 +1,7 @@
 import { and, asc, eq, max } from "drizzle-orm";
 import { data, Form, Link, redirect } from "react-router";
 import { z } from "zod";
+import { Input } from "~/components/ui/input";
 import { db } from "~/db";
 import { type VocabKind, vocabKinds, vocabularies } from "~/db/schema";
 import { slugifyTerm } from "~/lib/slug";
@@ -239,11 +240,7 @@ export default function Vocab({
               <input type="hidden" name="kind" value={kind} />
               <label className="flex flex-col text-sm">
                 Add a term
-                <input
-                  name="label"
-                  required
-                  className="border border-neutral-300 px-2 py-1"
-                />
+                <Input name="label" required />
               </label>
               <button
                 type="submit"

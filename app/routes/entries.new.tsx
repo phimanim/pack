@@ -11,6 +11,7 @@ import {
   useNavigation,
 } from "react-router";
 import { z } from "zod";
+import { Input } from "~/components/ui/input";
 import { db } from "~/db";
 import {
   cafes,
@@ -502,11 +503,11 @@ function AddTerm({
   return (
     <div className="mt-1">
       <div className="flex gap-2">
-        <input
+        <Input
           value={label}
           onChange={(event) => setLabel(event.target.value)}
           placeholder={placeholder}
-          className={`min-w-0 flex-1 ${fieldClass}`}
+          className="min-w-0 flex-1"
         />
         <button
           type="button"
@@ -588,20 +589,18 @@ export default function NewEntry({
           <legend>Or create a café</legend>
           <label className="flex flex-col">
             Name
-            <input
+            <Input
               name="newCafeName"
               placeholder="Klover"
               defaultValue={values?.newCafeName ?? ""}
-              className={fieldClass}
             />
           </label>
           <label className="flex flex-col">
             City
-            <input
+            <Input
               name="newCafeCity"
               placeholder="Paris"
               defaultValue={values?.newCafeCity ?? ""}
-              className={fieldClass}
             />
           </label>
           <label className="flex flex-col">
@@ -673,11 +672,10 @@ export default function NewEntry({
             </label>
             <label className="flex flex-col text-sm">
               Name
-              <input
+              <Input
                 name="name"
                 placeholder="Las Flores"
                 defaultValue={values?.name ?? ""}
-                className={fieldClass}
               />
             </label>
             <label className="flex flex-col text-sm">
@@ -697,11 +695,10 @@ export default function NewEntry({
             </label>
             <label className="flex flex-col text-sm">
               Or create a roaster
-              <input
+              <Input
                 name="newRoasterName"
                 placeholder="April"
                 defaultValue={values?.newRoasterName ?? ""}
-                className={fieldClass}
               />
             </label>
             <div className="flex flex-col text-sm">
@@ -829,12 +826,12 @@ export default function NewEntry({
         </label>
         <label className="flex flex-col text-sm">
           Date *
-          <input
+          <Input
             type="date"
             name="tastedAt"
             required
             defaultValue={values?.tastedAt ?? loaderData.today}
-            className={`cursor-pointer ${fieldClass}`}
+            className="cursor-pointer"
           />
         </label>
         <label className="flex flex-col text-sm">
@@ -854,31 +851,28 @@ export default function NewEntry({
         </label>
         <label className="flex flex-col text-sm">
           Bloom (seconds)
-          <input
+          <Input
             name="bloomSeconds"
             inputMode="numeric"
             placeholder="60"
             defaultValue={values?.bloomSeconds ?? ""}
-            className={fieldClass}
           />
         </label>
         <label className="flex flex-col text-sm">
           Ratio
-          <input
+          <Input
             name="ratio"
             placeholder="1:16"
             defaultValue={values?.ratio ?? ""}
-            className={fieldClass}
           />
         </label>
         <label className="flex flex-col text-sm">
           Temperature (°C)
-          <input
+          <Input
             name="temperature"
             inputMode="decimal"
             placeholder="93"
             defaultValue={values?.temperature ?? ""}
-            className={fieldClass}
           />
         </label>
         <label className="flex flex-col text-sm">
