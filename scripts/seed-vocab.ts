@@ -57,6 +57,16 @@ const rows = [
     { id: "yellow_fruits", label: "Yellow fruits" },
     { id: "jasmine", label: "Jasmine" },
   ]),
+  ...terms("dripper", [
+    { id: "hario_switch", label: "Hario Switch" },
+    { id: "origami_porcelain", label: "Origami porcelain" },
+    { id: "origami_plastic", label: "Origami plastic" },
+    { id: "aeropress", label: "AeroPress" },
+  ]),
+  ...terms("paper_filter", [
+    { id: "abaca", label: "Abaca" },
+    { id: "abaca_dark", label: "Abaca dark" },
+  ]),
   ...terms("origin_country", originCountries),
 ];
 

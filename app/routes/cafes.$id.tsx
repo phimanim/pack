@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { data, Link } from "react-router";
 import { z } from "zod";
@@ -11,6 +11,7 @@ import {
   extractionLabels,
   type Recipe,
   roasters,
+  vocabularies,
 } from "~/db/schema";
 
 type Cafe = typeof cafes.$inferSelect;
@@ -22,6 +23,7 @@ type EntryItem = {
   note: string | null;
   image: string | null;
   recipe: Recipe | null;
+  gear: string | null;
   coffee: {
     id: string;
     name: string | null;
@@ -34,6 +36,18 @@ type DrunkCoffee = {
   name: string | null;
   roasterName: string | null;
 };
+
+function gearLabel(
+  row: { dripperId: string | null; paperFilterId: string | null },
+  terms: { id: string; kind: string; label: string }[],
+): string | null {
+  const labels = [
+    terms.find((t) => t.kind === "dripper" && t.id === row.dripperId)?.label,
+    terms.find((t) => t.kind === "paper_filter" && t.id === row.paperFilterId)
+      ?.label,
+  ].filter((label): label is string => label != null);
+  return labels.length > 0 ? labels.join(" · ") : null;
+}
 
 type LoaderData = {
   cafe: Cafe;
@@ -69,6 +83,8 @@ export async function loader({
       note: entries.note,
       image: entries.image,
       recipe: entries.recipe,
+      dripperId: entries.dripperId,
+      paperFilterId: entries.paperFilterId,
       coffeeId: coffees.id,
       coffeeName: coffees.name,
       roasterName: roasters.name,
@@ -79,6 +95,15 @@ export async function loader({
     .where(eq(entries.cafeId, cafe.id))
     .orderBy(desc(entries.tastedAt), desc(entries.createdAt));
 
+  const gearTerms = await db
+    .select({
+      id: vocabularies.id,
+      kind: vocabularies.kind,
+      label: vocabularies.label,
+    })
+    .from(vocabularies)
+    .where(inArray(vocabularies.kind, ["dripper", "paper_filter"]));
+
   const entryItems: EntryItem[] = rows.map((row) => ({
     id: row.id,
     tastedAt: row.tastedAt,
@@ -86,6 +111,7 @@ export async function loader({
     note: row.note,
     image: row.image,
     recipe: row.recipe,
+    gear: gearLabel(row, gearTerms),
     coffee: {
       id: row.coffeeId,
       name: row.coffeeName,
@@ -176,6 +202,9 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
                   <p className="text-sm text-neutral-500">
                     {extractionLabels[cup.extraction]}
                   </p>
+                ) : null}
+                {cup.gear ? (
+                  <p className="text-sm text-neutral-500">{cup.gear}</p>
                 ) : null}
                 {recipe?.bloomSeconds != null ? (
                   <p className="text-sm text-neutral-500">

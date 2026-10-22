@@ -1,4 +1,14 @@
-import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+  sql,
+} from "drizzle-orm";
 import { DateTime } from "luxon";
 import { Form, Link, useSearchParams } from "react-router";
 import { Button } from "~/components/ui/button";
@@ -19,14 +29,26 @@ import {
   cafes,
   coffees,
   type Extraction,
-  extractionLabels,
   entries,
+  extractionLabels,
   type Recipe,
   roasters,
   vocabularies,
 } from "~/db/schema";
 
 type Option = { id: string; label: string };
+
+function gearLabel(
+  row: { dripperId: string | null; paperFilterId: string | null },
+  terms: { id: string; kind: string; label: string }[],
+): string | null {
+  const labels = [
+    terms.find((t) => t.kind === "dripper" && t.id === row.dripperId)?.label,
+    terms.find((t) => t.kind === "paper_filter" && t.id === row.paperFilterId)
+      ?.label,
+  ].filter((label): label is string => label != null);
+  return labels.length > 0 ? labels.join(" · ") : null;
+}
 
 type CoffeeListItem = {
   id: string;
@@ -42,6 +64,7 @@ type AtHomeEntry = {
   note: string | null;
   image: string | null;
   recipe: Recipe | null;
+  gear: string | null;
   coffee: {
     id: string;
     name: string | null;
@@ -56,6 +79,7 @@ type OutsideEntry = {
   note: string | null;
   image: string | null;
   recipe: Recipe | null;
+  gear: string | null;
   coffee: {
     id: string;
     name: string | null;
@@ -67,11 +91,7 @@ type OutsideEntry = {
   };
 };
 
-export async function loader({
-  request,
-}: {
-  request: Request;
-}): Promise<{
+export async function loader({ request }: { request: Request }): Promise<{
   coffees: CoffeeListItem[];
   atHomeEntries: AtHomeEntry[];
   outsideEntries: OutsideEntry[];
@@ -119,6 +139,15 @@ export async function loader({
     .where(eq(vocabularies.kind, "origin_country"))
     .orderBy(asc(vocabularies.sort), asc(vocabularies.label));
 
+  const gearTerms = await db
+    .select({
+      id: vocabularies.id,
+      kind: vocabularies.kind,
+      label: vocabularies.label,
+    })
+    .from(vocabularies)
+    .where(inArray(vocabularies.kind, ["dripper", "paper_filter"]));
+
   const atHomeRows = await db
     .select({
       id: entries.id,
@@ -127,6 +156,8 @@ export async function loader({
       note: entries.note,
       image: entries.image,
       recipe: entries.recipe,
+      dripperId: entries.dripperId,
+      paperFilterId: entries.paperFilterId,
       coffeeId: coffees.id,
       coffeeName: coffees.name,
       roasterName: roasters.name,
@@ -144,6 +175,7 @@ export async function loader({
     note: row.note,
     image: row.image,
     recipe: row.recipe,
+    gear: gearLabel(row, gearTerms),
     coffee: {
       id: row.coffeeId,
       name: row.coffeeName,
@@ -159,6 +191,8 @@ export async function loader({
       note: entries.note,
       image: entries.image,
       recipe: entries.recipe,
+      dripperId: entries.dripperId,
+      paperFilterId: entries.paperFilterId,
       coffeeId: coffees.id,
       coffeeName: coffees.name,
       roasterName: roasters.name,
@@ -179,6 +213,7 @@ export async function loader({
     note: row.note,
     image: row.image,
     recipe: row.recipe,
+    gear: gearLabel(row, gearTerms),
     coffee: {
       id: row.coffeeId,
       name: row.coffeeName,
@@ -437,10 +472,7 @@ export default function Coffees({
                 ) : null}
                 <p className="text-sm">{tasted}</p>
                 <p>
-                  <Link
-                    to={`/coffees/${brew.coffee.id}`}
-                    className="underline"
-                  >
+                  <Link to={`/coffees/${brew.coffee.id}`} className="underline">
                     {brew.coffee.name ?? "Untitled"}
                   </Link>
                   {brew.coffee.roasterName
@@ -451,6 +483,9 @@ export default function Coffees({
                   <p className="text-sm text-neutral-500">
                     {extractionLabels[brew.extraction]}
                   </p>
+                ) : null}
+                {brew.gear ? (
+                  <p className="text-sm text-neutral-500">{brew.gear}</p>
                 ) : null}
                 {recipe?.bloomSeconds != null ? (
                   <p className="text-sm text-neutral-500">
@@ -505,10 +540,7 @@ export default function Coffees({
                 ) : null}
                 <p className="text-sm">{tasted}</p>
                 <p>
-                  <Link
-                    to={`/coffees/${cup.coffee.id}`}
-                    className="underline"
-                  >
+                  <Link to={`/coffees/${cup.coffee.id}`} className="underline">
                     {cup.coffee.name ?? "Untitled"}
                   </Link>
                   {cup.coffee.roasterName
@@ -524,6 +556,9 @@ export default function Coffees({
                   <p className="text-sm text-neutral-500">
                     {extractionLabels[cup.extraction]}
                   </p>
+                ) : null}
+                {cup.gear ? (
+                  <p className="text-sm text-neutral-500">{cup.gear}</p>
                 ) : null}
                 {recipe?.bloomSeconds != null ? (
                   <p className="text-sm text-neutral-500">

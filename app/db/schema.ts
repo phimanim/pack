@@ -16,6 +16,8 @@ export const vocabKinds = [
   "process",
   "pack_note",
   "origin_country",
+  "dripper",
+  "paper_filter",
 ] as const;
 
 export type VocabKind = (typeof vocabKinds)[number];
@@ -113,6 +115,8 @@ export const entries = pgTable("entries", {
   tastedAt: date("tasted_at", { mode: "string" }).notNull(),
   extraction: text("extraction").$type<Extraction>(),
   recipe: jsonb("recipe").$type<Recipe>(),
+  dripperId: text("dripper_id"),
+  paperFilterId: text("paper_filter_id"),
   note: text("note"),
   image: text("image"),
   createdAt: timestamp("created_at", { withTimezone: true })

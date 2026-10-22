@@ -23,6 +23,8 @@ const sectionTitles: Record<VocabKind, string> = {
   process: "Process",
   pack_note: "Pack notes",
   origin_country: "Origin country",
+  dripper: "Drippers",
+  paper_filter: "Paper filters",
 };
 
 export async function loader(): Promise<{ termsByKind: TermsByKind }> {
@@ -41,6 +43,8 @@ export async function loader(): Promise<{ termsByKind: TermsByKind }> {
       process: terms.filter((t) => t.kind === "process"),
       pack_note: terms.filter((t) => t.kind === "pack_note"),
       origin_country: terms.filter((t) => t.kind === "origin_country"),
+      dripper: terms.filter((t) => t.kind === "dripper"),
+      paper_filter: terms.filter((t) => t.kind === "paper_filter"),
     },
   };
 }

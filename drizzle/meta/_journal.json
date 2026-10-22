@@ -71,6 +71,13 @@
       "when": 1791536804697,
       "tag": "0009_dusty_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792668312907,
+      "tag": "0010_past_true_believers",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { put } from "@vercel/blob";
-import { and, asc, eq, max } from "drizzle-orm";
+import { and, asc, eq, inArray, max } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
@@ -49,6 +49,8 @@ type LoaderData = {
   processes: VocabOption[];
   varieties: VocabOption[];
   packNotes: VocabOption[];
+  drippers: VocabOption[];
+  paperFilters: VocabOption[];
 };
 
 type FormValues = {
@@ -67,6 +69,8 @@ type FormValues = {
   packNoteIds: string[];
   tastedAt: string;
   extraction: string;
+  dripperIds: string[];
+  paperFilterIds: string[];
   bloomSeconds: string;
   ratio: string;
   temperature: string;
@@ -162,6 +166,8 @@ const schema = z
         "Invalid date",
       ),
     extraction: z.enum(extractionIds).nullable(),
+    dripperId: z.string().nullable(),
+    paperFilterId: z.string().nullable(),
     bloomSeconds: z
       .number()
       .int("Bloom must be a whole number")
@@ -239,6 +245,12 @@ export async function loader({
     packNotes: terms
       .filter((t) => t.kind === "pack_note")
       .map((t) => ({ id: t.id, label: t.label })),
+    drippers: terms
+      .filter((t) => t.kind === "dripper")
+      .map((t) => ({ id: t.id, label: t.label })),
+    paperFilters: terms
+      .filter((t) => t.kind === "paper_filter")
+      .map((t) => ({ id: t.id, label: t.label })),
   };
 }
 
@@ -305,6 +317,8 @@ export async function action({ request }: { request: Request }) {
     packNoteIds: formData.getAll("packNoteIds").map(String),
     tastedAt: String(formData.get("tastedAt") ?? ""),
     extraction: String(formData.get("extraction") ?? ""),
+    dripperIds: formData.getAll("dripperId").map(String),
+    paperFilterIds: formData.getAll("paperFilterId").map(String),
     bloomSeconds: String(formData.get("bloomSeconds") ?? ""),
     ratio: String(formData.get("ratio") ?? ""),
     temperature: String(formData.get("temperature") ?? ""),
@@ -337,6 +351,8 @@ export async function action({ request }: { request: Request }) {
     packNoteIds: values.packNoteIds.filter((id) => id !== ""),
     tastedAt: values.tastedAt,
     extraction: blankToNull(formData.get("extraction")),
+    dripperId: blankToNull(formData.get("dripperId")),
+    paperFilterId: blankToNull(formData.get("paperFilterId")),
     bloomSeconds,
     ratio: blankToNull(formData.get("ratio")),
     temperature,
@@ -346,6 +362,24 @@ export async function action({ request }: { request: Request }) {
 
   if (!parsed.success) {
     return fail(parsed.error.issues[0]?.message ?? "Invalid cup");
+  }
+
+  // Gear only applies to filter brews; ignore anything submitted otherwise.
+  let dripperId: string | null = null;
+  let paperFilterId: string | null = null;
+  if (parsed.data.extraction === "filter") {
+    const gearTerms = await db
+      .select({ id: vocabularies.id, kind: vocabularies.kind })
+      .from(vocabularies)
+      .where(inArray(vocabularies.kind, ["dripper", "paper_filter"]));
+    dripperId = parsed.data.dripperId;
+    paperFilterId = parsed.data.paperFilterId;
+    if (dripperId && !hasTerm(gearTerms, "dripper", dripperId)) {
+      return fail("Invalid dripper");
+    }
+    if (paperFilterId && !hasTerm(gearTerms, "paper_filter", paperFilterId)) {
+      return fail("Invalid paper filter");
+    }
   }
 
   let cafeId = parsed.data.cafeId;
@@ -479,6 +513,8 @@ export async function action({ request }: { request: Request }) {
     tastedAt,
     extraction: parsed.data.extraction,
     recipe: recipeFrom(parsed.data),
+    dripperId,
+    paperFilterId,
     note: parsed.data.note,
     image: entryImage,
   });
@@ -499,6 +535,7 @@ export default function NewEntry({
   const [mode, setMode] = useState<"existing" | "new">(
     values?.coffeeMode ?? "existing",
   );
+  const [extraction, setExtraction] = useState(values?.extraction ?? "");
   const [photoName, setPhotoName] = useState<string | null>(null);
   const [entryPhotoName, setEntryPhotoName] = useState<string | null>(null);
   const [isBlend, setIsBlend] = useState(
@@ -786,6 +823,7 @@ export default function NewEntry({
             name="extraction"
             defaultValue={values?.extraction || null}
             items={extractionItems}
+            onValueChange={(value) => setExtraction(value ?? "")}
           >
             <SelectTrigger className="mt-1 w-full">
               <SelectValue />
@@ -803,6 +841,32 @@ export default function NewEntry({
             </SelectContent>
           </Select>
         </label>
+        {extraction === "filter" ? (
+          <>
+            <fieldset className="text-sm">
+              <legend>Dripper</legend>
+              <VocabCombobox
+                kind="dripper"
+                name="dripperId"
+                terms={loaderData.drippers}
+                defaultIds={values?.dripperIds}
+                placeholder="Search or add a dripper"
+                multiple={false}
+              />
+            </fieldset>
+            <fieldset className="text-sm">
+              <legend>Paper filter</legend>
+              <VocabCombobox
+                kind="paper_filter"
+                name="paperFilterId"
+                terms={loaderData.paperFilters}
+                defaultIds={values?.paperFilterIds}
+                placeholder="Search or add a paper filter"
+                multiple={false}
+              />
+            </fieldset>
+          </>
+        ) : null}
         <label className="flex flex-col text-sm">
           Bloom (seconds)
           <Input
