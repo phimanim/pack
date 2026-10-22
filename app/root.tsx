@@ -23,6 +23,10 @@ export const middleware: MiddlewareFunction[] = [
     if (path === "/login") {
       return next();
     }
+    // Local QA without the password. Stripped from production builds.
+    if (import.meta.env.DEV && process.env.DEV_AUTO_LOGIN === "1") {
+      return next();
+    }
     const session = await getSession(request.headers.get("Cookie"));
     if (!session.get("userId")) {
       throw redirect("/login");
