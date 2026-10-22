@@ -505,7 +505,7 @@ export default function NewEntry({
     (values?.originCountryIds.length ?? 0) > 1,
   );
   const cafeItems = [
-    { label: "Select a café", value: null },
+    { label: "Home (no café)", value: null },
     ...loaderData.cafes.map((cafe) => ({
       label: cafe.name,
       value: cafe.id,
@@ -554,7 +554,7 @@ export default function NewEntry({
         className="mt-4 flex flex-col gap-4"
       >
         <label className="flex flex-col text-sm">
-          Café *
+          Where did you drink it?
           <Select
             name="cafeId"
             defaultValue={(values?.cafeId ?? loaderData.selectedCafeId) || null}
@@ -576,11 +576,11 @@ export default function NewEntry({
             </SelectContent>
           </Select>
           <span className="text-xs text-neutral-500">
-            Leave empty to log a home brew.
+            Defaults to home. Pick a café only if you drank it out.
           </span>
         </label>
         <fieldset className="flex flex-col gap-2 border border-neutral-300 p-3 text-sm">
-          <legend>Or create a café</legend>
+          <legend>Drank it at a new café? Add it here</legend>
           <label className="flex flex-col">
             Name
             <Input

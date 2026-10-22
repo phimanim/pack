@@ -300,10 +300,6 @@ export default function Coffees({
           Add a coffee
         </Link>
         {" · "}
-        <Link to="/entries/new" className="underline">
-          Log a cup
-        </Link>
-        {" · "}
         <Link to="/roasters" className="underline">
           Roasters
         </Link>
