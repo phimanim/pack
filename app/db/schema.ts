@@ -120,6 +120,8 @@ export const entries = pgTable("entries", {
   recipe: jsonb("recipe").$type<Recipe>(),
   dripperId: text("dripper_id"),
   paperFilterId: text("paper_filter_id"),
+  priceMinor: integer("price_minor"),
+  currency: text("currency"),
   note: text("note"),
   image: text("image"),
   createdAt: timestamp("created_at", { withTimezone: true })

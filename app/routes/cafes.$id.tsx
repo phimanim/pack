@@ -13,6 +13,7 @@ import {
   roasters,
   vocabularies,
 } from "~/db/schema";
+import { formatMinor } from "~/lib/money";
 
 type Cafe = typeof cafes.$inferSelect;
 
@@ -24,6 +25,8 @@ type EntryItem = {
   image: string | null;
   recipe: Recipe | null;
   gear: string | null;
+  priceMinor: number | null;
+  currency: string | null;
   coffee: {
     id: string;
     name: string | null;
@@ -85,6 +88,8 @@ export async function loader({
       recipe: entries.recipe,
       dripperId: entries.dripperId,
       paperFilterId: entries.paperFilterId,
+      priceMinor: entries.priceMinor,
+      currency: entries.currency,
       coffeeId: coffees.id,
       coffeeName: coffees.name,
       roasterName: roasters.name,
@@ -112,6 +117,8 @@ export async function loader({
     image: row.image,
     recipe: row.recipe,
     gear: gearLabel(row, gearTerms),
+    priceMinor: row.priceMinor,
+    currency: row.currency,
     coffee: {
       id: row.coffeeId,
       name: row.coffeeName,
@@ -201,6 +208,14 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
                 {cup.extraction ? (
                   <p className="text-sm text-neutral-500">
                     {extractionLabels[cup.extraction]}
+                  </p>
+                ) : null}
+                {cup.priceMinor != null && cup.currency ? (
+                  <p
+                    data-testid="cup-price"
+                    className="text-sm text-neutral-500"
+                  >
+                    {formatMinor(cup.priceMinor, cup.currency)}
                   </p>
                 ) : null}
                 {cup.gear ? (

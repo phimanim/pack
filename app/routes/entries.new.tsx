@@ -35,6 +35,11 @@ import {
   vocabKinds,
   vocabularies,
 } from "~/db/schema";
+import {
+  defaultCurrency,
+  isCurrencyCode,
+  parseMoneyToMinor,
+} from "~/lib/money";
 import { slugifyTerm } from "~/lib/slug";
 
 type VocabOption = { id: string; label: string };
@@ -85,6 +90,8 @@ type FormValues = {
   ratio: string;
   temperature: string;
   description: string;
+  price: string;
+  currency: string;
   note: string;
 };
 
@@ -186,6 +193,7 @@ const schema = z
     ratio: z.string().nullable(),
     temperature: z.number().nullable(),
     description: z.string().nullable(),
+    priceMinor: z.number().int("Price is invalid").min(0).nullable(),
     note: z.string().nullable(),
   })
   .refine(
@@ -333,6 +341,8 @@ export async function action({ request }: { request: Request }) {
     ratio: String(formData.get("ratio") ?? ""),
     temperature: String(formData.get("temperature") ?? ""),
     description: String(formData.get("description") ?? ""),
+    price: String(formData.get("price") ?? ""),
+    currency: String(formData.get("currency") ?? ""),
     note: String(formData.get("note") ?? ""),
   };
 
@@ -343,6 +353,17 @@ export async function action({ request }: { request: Request }) {
   const temperature = blankToNumber(formData.get("temperature"));
   if (Number.isNaN(bloomSeconds) || Number.isNaN(temperature)) {
     return fail("Bloom and temperature must be numbers");
+  }
+
+  // Price only applies to cups drunk outside; validated whenever submitted so
+  // a bad value is reported, then dropped below if no café ends up set.
+  const currency = values.currency.trim().toUpperCase() || defaultCurrency;
+  if (!isCurrencyCode(currency)) {
+    return fail("Currency must be a 3-letter code like EUR");
+  }
+  const priceMinor = parseMoneyToMinor(formData.get("price"), currency);
+  if (Number.isNaN(priceMinor)) {
+    return fail("Price must be a number like 4.50");
   }
 
   const parsed = schema.safeParse({
@@ -367,6 +388,7 @@ export async function action({ request }: { request: Request }) {
     ratio: blankToNull(formData.get("ratio")),
     temperature,
     description: blankToNull(formData.get("description")),
+    priceMinor,
     note: blankToNull(formData.get("note")),
   });
 
@@ -525,6 +547,9 @@ export async function action({ request }: { request: Request }) {
     recipe: recipeFrom(parsed.data),
     dripperId,
     paperFilterId,
+    // Price only makes sense for a cup drunk outside.
+    priceMinor: cafeId ? parsed.data.priceMinor : null,
+    currency: cafeId && parsed.data.priceMinor != null ? currency : null,
     note: parsed.data.note,
     image: entryImage,
   });
@@ -546,6 +571,11 @@ export default function NewEntry({
     values?.coffeeMode ?? "existing",
   );
   const [extraction, setExtraction] = useState(values?.extraction ?? "");
+  const [cafeId, setCafeId] = useState(
+    (values?.cafeId ?? loaderData.selectedCafeId) || "",
+  );
+  const [newCafeName, setNewCafeName] = useState(values?.newCafeName ?? "");
+  const hasCafe = cafeId !== "" || newCafeName.trim() !== "";
   const [photoName, setPhotoName] = useState<string | null>(null);
   const [entryPhotoName, setEntryPhotoName] = useState<string | null>(null);
   const [isBlend, setIsBlend] = useState(
@@ -605,6 +635,7 @@ export default function NewEntry({
             name="cafeId"
             defaultValue={(values?.cafeId ?? loaderData.selectedCafeId) || null}
             items={cafeItems}
+            onValueChange={(value) => setCafeId(value ?? "")}
           >
             <SelectTrigger className="mt-1 w-full">
               <SelectValue />
@@ -633,6 +664,7 @@ export default function NewEntry({
               name="newCafeName"
               placeholder="Klover"
               defaultValue={values?.newCafeName ?? ""}
+              onChange={(event) => setNewCafeName(event.target.value)}
             />
           </label>
           <label className="flex flex-col">
@@ -924,6 +956,28 @@ export default function NewEntry({
             className={fieldClass}
           />
         </label>
+        {hasCafe ? (
+          <div className="grid grid-cols-[1fr_6rem] gap-2">
+            <label className="flex flex-col text-sm">
+              Price
+              <Input
+                name="price"
+                inputMode="decimal"
+                placeholder="4.50"
+                defaultValue={values?.price ?? ""}
+              />
+            </label>
+            <label className="flex flex-col text-sm">
+              Currency
+              <Input
+                name="currency"
+                maxLength={3}
+                placeholder="EUR"
+                defaultValue={values?.currency || defaultCurrency}
+              />
+            </label>
+          </div>
+        ) : null}
         <label className="flex flex-col text-sm">
           Note
           <textarea

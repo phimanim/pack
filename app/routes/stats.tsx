@@ -1,8 +1,9 @@
-import { eq, gte } from "drizzle-orm";
+import { eq, gte, isNotNull } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { Link } from "react-router";
 import { db } from "~/db";
 import { coffees, entries, vocabularies } from "~/db/schema";
+import { formatMinor } from "~/lib/money";
 
 const DAYS = 30;
 
@@ -10,7 +11,14 @@ type CupsPerDayPoint = { day: string; count: number };
 
 type VarietyPoint = { id: string; label: string; count: number };
 
+type SpendPoint = {
+  currency: string;
+  totalMinor: number;
+  cups: number;
+};
+
 type StatsData = {
+  spend: SpendPoint[];
   cupsPerDay: CupsPerDayPoint[];
   varieties: VarietyPoint[];
   totalCups: number;
@@ -68,7 +76,28 @@ export async function loader(): Promise<StatsData> {
     return b.count - a.count || a.label.localeCompare(b.label);
   });
 
-  return { cupsPerDay, varieties, totalCups: cupRows.length };
+  // Cups drunk outside with a price, totalled per currency.
+  const priceRows = await db
+    .select({ priceMinor: entries.priceMinor, currency: entries.currency })
+    .from(entries)
+    .where(isNotNull(entries.priceMinor));
+  const spendByCurrency = new Map<string, SpendPoint>();
+  for (const row of priceRows) {
+    if (row.priceMinor == null || !row.currency) continue;
+    const point = spendByCurrency.get(row.currency) ?? {
+      currency: row.currency,
+      totalMinor: 0,
+      cups: 0,
+    };
+    point.totalMinor += row.priceMinor;
+    point.cups += 1;
+    spendByCurrency.set(row.currency, point);
+  }
+  const spend = [...spendByCurrency.values()].sort((a, b) =>
+    a.currency.localeCompare(b.currency),
+  );
+
+  return { cupsPerDay, varieties, totalCups: cupRows.length, spend };
 }
 
 function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
@@ -114,6 +143,41 @@ function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
         <span>max {max}/day</span>
         <span>{last.toLocaleString(DateTime.DATE_MED)}</span>
       </p>
+    </section>
+  );
+}
+
+function Spend({ data }: { data: SpendPoint[] }) {
+  return (
+    <section aria-labelledby="spend">
+      <h2 id="spend" className="text-lg">
+        Spend
+      </h2>
+      <p className="mt-1 text-sm text-neutral-500">
+        Cups with a price, all time. Currencies are not converted.
+      </p>
+      {data.length === 0 ? (
+        <p className="mt-4 text-sm text-neutral-500">No priced cups yet.</p>
+      ) : (
+        <ul className="mt-4 flex flex-col gap-2">
+          {data.map((d) => (
+            <li
+              key={d.currency}
+              data-currency={d.currency}
+              data-total-minor={d.totalMinor}
+              data-cups={d.cups}
+              className="flex justify-between text-sm"
+            >
+              <span>
+                {d.cups} {d.cups === 1 ? "cup" : "cups"}
+              </span>
+              <span className="tabular-nums">
+                {formatMinor(d.totalMinor, d.currency)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
@@ -176,6 +240,7 @@ export default function Stats({ loaderData }: { loaderData: StatsData }) {
       <h1 className="mt-4 text-xl">Stats</h1>
       <div className="mt-6 flex flex-col gap-10">
         <CupsPerDay data={loaderData.cupsPerDay} />
+        <Spend data={loaderData.spend} />
         <Varieties
           data={loaderData.varieties}
           totalCups={loaderData.totalCups}
