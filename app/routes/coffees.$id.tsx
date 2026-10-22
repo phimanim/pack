@@ -1,7 +1,8 @@
+import { cn } from "cn";
 import { eq } from "drizzle-orm";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { db } from "~/db";
 import { coffees, roasters, vocabularies } from "~/db/schema";
 import { formatDate } from "~/lib/dates";
@@ -309,7 +310,7 @@ export default function CoffeeDetail({
       <div className="mt-4 flex gap-2">
         <Link
           to={`/coffees/${coffee.id}/edit`}
-          className="border-2 border-outline-variant px-3 py-1"
+          className={cn(buttonVariants({ variant: "outline" }))}
         >
           Edit
         </Link>
