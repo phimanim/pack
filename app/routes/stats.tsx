@@ -1,10 +1,16 @@
-import { count, eq, gte, isNotNull, isNull } from "drizzle-orm";
+import { and, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { Link } from "react-router";
 import { db } from "~/db";
-import { coffees, entries, vocabularies } from "~/db/schema";
+import {
+  coffees,
+  type Extraction,
+  entries,
+  extractionLabels,
+  vocabularies,
+} from "~/db/schema";
 import { formatDate, formatMonth } from "~/lib/dates";
-import { formatMinor } from "~/lib/money";
+import { cupCostMinor, doseGrams, formatMinor } from "~/lib/money";
 
 const DAYS = 30;
 
@@ -100,7 +106,6 @@ export async function loader(): Promise<StatsData> {
 async function loadSpend(): Promise<SpendPoint[]> {
   const bagRows = await db
     .select({
-      id: coffees.id,
       priceMinor: coffees.priceMinor,
       currency: coffees.currency,
       roastingDate: coffees.roastingDate,
@@ -116,15 +121,22 @@ async function loadSpend(): Promise<SpendPoint[]> {
     })
     .from(entries)
     .where(isNotNull(entries.priceMinor));
-  const homeCounts = new Map(
-    (
-      await db
-        .select({ coffeeId: entries.coffeeId, n: count() })
-        .from(entries)
-        .where(isNull(entries.cafeId))
-        .groupBy(entries.coffeeId)
-    ).map((r) => [r.coffeeId, r.n]),
-  );
+  const homeCups = await db
+    .select({
+      extraction: entries.extraction,
+      priceMinor: coffees.priceMinor,
+      currency: coffees.currency,
+      bagWeightGrams: coffees.bagWeightGrams,
+    })
+    .from(entries)
+    .innerJoin(coffees, eq(entries.coffeeId, coffees.id))
+    .where(
+      and(
+        isNull(entries.cafeId),
+        isNotNull(coffees.priceMinor),
+        isNotNull(coffees.bagWeightGrams),
+      ),
+    );
 
   const byCurrency = new Map<string, SpendPoint>();
   const months = new Map<string, Map<string, SpendMonth>>();
@@ -161,11 +173,25 @@ async function loadSpend(): Promise<SpendPoint[]> {
     row.bagsMinor += bag.priceMinor;
     row.bags += 1;
     point.bagsMinor += bag.priceMinor;
-    const homeCups = homeCounts.get(bag.id) ?? 0;
-    if (homeCups > 0) {
-      point.home.totalMinor += bag.priceMinor;
-      point.home.cups += homeCups;
+  }
+  for (const cup of homeCups) {
+    const dose = cup.extraction ? doseGrams[cup.extraction] : undefined;
+    if (
+      dose == null ||
+      cup.priceMinor == null ||
+      !cup.currency ||
+      !cup.bagWeightGrams
+    ) {
+      continue;
     }
+    const point = byCurrency.get(cup.currency);
+    if (!point) continue;
+    point.home.totalMinor += cupCostMinor(
+      cup.priceMinor,
+      cup.bagWeightGrams,
+      dose,
+    );
+    point.home.cups += 1;
   }
   for (const cup of cupRows) {
     if (cup.priceMinor == null || !cup.currency) continue;
@@ -291,8 +317,15 @@ function Spend({ data }: { data: SpendPoint[] }) {
                   </div>
                 </dl>
                 <p className="text-xs text-ink-muted">
-                  Home cup = bag price divided by the home cups logged from it,
-                  bags with a price and at least one home cup only.
+                  Home cup = bag price per gram times the dose:{" "}
+                  {Object.entries(doseGrams)
+                    .map(
+                      ([id, g]) =>
+                        `${g} g per ${extractionLabels[id as Extraction].toLowerCase()}`,
+                    )
+                    .join(", ")}
+                  . Only home cups with one of those extractions, from a bag
+                  with a price and a weight.
                 </p>
                 <ul className="flex flex-col gap-2">
                   {point.months.map((m) => {

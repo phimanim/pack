@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob";
 import { and, asc, desc, eq, inArray, max } from "drizzle-orm";
+import { XIcon } from "lucide-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
@@ -658,27 +659,41 @@ export default function NewEntry({
           <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
             Where did you drink it?
           </span>
-          <Select
-            name="cafeId"
-            defaultValue={(values?.cafeId ?? loaderData.selectedCafeId) || null}
-            items={cafeItems}
-            onValueChange={(value) => setCafeId(value ?? "")}
-          >
-            <SelectTrigger className="mt-1 w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {cafeItems
-                  .filter((item) => item.value != null)
-                  .map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <div className="mt-1 flex items-center gap-2">
+            <Select
+              name="cafeId"
+              value={cafeId || null}
+              items={cafeItems}
+              onValueChange={(value) => setCafeId(value ?? "")}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {cafeItems
+                    .filter((item) => item.value != null)
+                    .map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {cafeId ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Clear café (drank it at home)"
+                data-testid="clear-cafe"
+                onClick={() => setCafeId("")}
+              >
+                <XIcon />
+              </Button>
+            ) : null}
+          </div>
           <span className="text-xs text-ink-muted">
             Defaults to home. Pick a café only if you drank it out.
           </span>

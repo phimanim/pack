@@ -3,9 +3,20 @@ import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { db } from "~/db";
-import { coffees, roasters, vocabularies } from "~/db/schema";
+import {
+  coffees,
+  type Extraction,
+  extractionLabels,
+  roasters,
+  vocabularies,
+} from "~/db/schema";
 import { formatDate } from "~/lib/dates";
-import { formatMinor, formatPricePer100g } from "~/lib/money";
+import {
+  cupCostMinor,
+  doseGrams,
+  formatMinor,
+  formatPricePer100g,
+} from "~/lib/money";
 
 type CoffeeDetail = {
   id: string;
@@ -125,6 +136,17 @@ export default function CoffeeDetail({
   const navigation = useNavigation();
   const isDeleting = navigation.state !== "idle";
   const { coffee } = loaderData;
+  const { priceMinor, currency, bagWeightGrams } = coffee;
+  const perCup =
+    priceMinor != null && currency && bagWeightGrams
+      ? Object.entries(doseGrams)
+          .map(([id, dose]) => {
+            const minor = cupCostMinor(priceMinor, bagWeightGrams, dose);
+            const label = extractionLabels[id as Extraction].toLowerCase();
+            return `${formatMinor(Math.round(minor), currency)} per ${label} (${dose} g)`;
+          })
+          .join(" · ")
+      : null;
   const roastLabel = coffee.roastingDate
     ? formatDate(coffee.roastingDate)
     : null;
@@ -268,6 +290,11 @@ export default function CoffeeDetail({
                 coffee.bagWeightGrams,
               )}{" "}
               per 100 g)
+            </span>
+          ) : null}
+          {perCup ? (
+            <span data-testid="price-per-cup" className="block text-ink-muted">
+              {perCup}
             </span>
           ) : null}
         </p>

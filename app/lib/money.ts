@@ -1,16 +1,32 @@
 // Money convention: integer minor units (e.g. cents) + ISO 4217 currency code.
 // Reused by coffee bags and (later) entries.
 
+import type { Extraction } from "~/db/schema";
+
 export const defaultCurrency = "EUR";
 
+// Intl.NumberFormat accepts any well-formed code ("EUT"), so check against the
+// list of real ISO 4217 currencies instead.
+const currencyCodes = new Set(Intl.supportedValuesOf("currency"));
+
 export function isCurrencyCode(value: string): boolean {
-  if (!/^[A-Z]{3}$/.test(value)) return false;
-  try {
-    new Intl.NumberFormat("en", { style: "currency", currency: value });
-    return true;
-  } catch {
-    return false;
-  }
+  return currencyCodes.has(value);
+}
+
+// Grams of coffee per cup, by extraction. Extractions without a dose are left
+// out of per-cup bag costs.
+export const doseGrams: Partial<Record<Extraction, number>> = {
+  filter: 15,
+  espresso: 6,
+};
+
+/** Bag price share for one cup of `dose` grams, in minor units. */
+export function cupCostMinor(
+  bagMinor: number,
+  bagGrams: number,
+  dose: number,
+): number {
+  return (bagMinor * dose) / bagGrams;
 }
 
 function minorDigits(currency: string): number {
