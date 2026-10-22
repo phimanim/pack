@@ -69,6 +69,7 @@ type LoaderData = {
   drippers: VocabOption[];
   paperFilters: VocabOption[];
   lastGear: { dripperIds: string[]; paperFilterIds: string[] };
+  prefill: FormValues | null;
 };
 
 type FormValues = {
@@ -266,8 +267,73 @@ export async function loader({
       ? lastFilter.paperFilterId
       : null;
 
+  // Duplicate a cup: prefill the form from it. Nothing is saved until Save.
+  const duplicateId = z
+    .uuid()
+    .safeParse(new URL(request.url).searchParams.get("duplicateOf"));
+  let prefill: FormValues | null = null;
+  if (duplicateId.success) {
+    const [source] = await db
+      .select({
+        coffeeId: entries.coffeeId,
+        cafeId: entries.cafeId,
+        extraction: entries.extraction,
+        recipe: entries.recipe,
+        dripperId: entries.dripperId,
+        paperFilterId: entries.paperFilterId,
+      })
+      .from(entries)
+      .where(eq(entries.id, duplicateId.data))
+      .limit(1);
+    if (source) {
+      const dripperId = source.dripperId
+        ? hasTerm(terms, "dripper", source.dripperId)
+          ? source.dripperId
+          : null
+        : null;
+      const paperFilterId = source.paperFilterId
+        ? hasTerm(terms, "paper_filter", source.paperFilterId)
+          ? source.paperFilterId
+          : null
+        : null;
+      const recipe = source.recipe ?? {};
+      prefill = {
+        cafeId:
+          source.cafeId && cafeRows.some((c) => c.id === source.cafeId)
+            ? source.cafeId
+            : "",
+        newCafeName: "",
+        newCafeCity: "",
+        newCafeNotes: "",
+        coffeeMode: "existing",
+        coffeeId: source.coffeeId,
+        name: "",
+        roasterId: "",
+        newRoasterName: "",
+        originCountryIds: [],
+        processIds: [],
+        varietyIds: [],
+        packNoteIds: [],
+        tastedAt: DateTime.now().toISODate() ?? "",
+        extraction: source.extraction ?? "",
+        dripperIds: dripperId ? [dripperId] : [],
+        paperFilterIds: paperFilterId ? [paperFilterId] : [],
+        bloomSeconds:
+          recipe.bloomSeconds != null ? String(recipe.bloomSeconds) : "",
+        ratio: recipe.ratio ?? "",
+        temperature:
+          recipe.temperature != null ? String(recipe.temperature) : "",
+        description: recipe.description ?? "",
+        price: "",
+        currency: "",
+        note: "",
+      };
+    }
+  }
+
   return {
     selectedCafeId,
+    prefill,
     today: DateTime.now().toISODate() ?? "",
     cafes: cafeRows,
     coffees: coffeeRows,
@@ -591,7 +657,7 @@ export default function NewEntry({
 }) {
   const navigation = useNavigation();
   const isSaving = navigation.state !== "idle";
-  const values = actionData?.values;
+  const values = actionData?.values ?? loaderData.prefill ?? undefined;
   const [mode, setMode] = useState<"existing" | "new">(
     values?.coffeeMode ?? "existing",
   );

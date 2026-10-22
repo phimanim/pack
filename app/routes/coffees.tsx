@@ -469,7 +469,11 @@ export default function Coffees({
                     className="mb-2 aspect-square w-full max-w-48 border-2 border-outline-variant object-cover"
                   />
                 ) : null}
-                <p className="text-sm">{tasted}</p>
+                <p className="text-sm">
+                  <Link to={`/entries/${brew.id}`} className="underline">
+                    {tasted}
+                  </Link>
+                </p>
                 <p>
                   <Link to={`/coffees/${brew.coffee.id}`} className="underline">
                     {brew.coffee.name ?? "Untitled"}
@@ -530,7 +534,11 @@ export default function Coffees({
                     className="mb-2 aspect-square w-full max-w-48 border-2 border-outline-variant object-cover"
                   />
                 ) : null}
-                <p className="text-sm">{tasted}</p>
+                <p className="text-sm">
+                  <Link to={`/entries/${cup.id}`} className="underline">
+                    {tasted}
+                  </Link>
+                </p>
                 <p>
                   <Link to={`/coffees/${cup.coffee.id}`} className="underline">
                     {cup.coffee.name ?? "Untitled"}
