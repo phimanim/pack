@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import { useState } from "react";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { SiteNav } from "~/components/site-nav";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -527,15 +528,8 @@ export default function EditCoffee({
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
-        <Link to="/coffees" className="underline">
-          Library
-        </Link>
-        {" · "}
+      <SiteNav />
+      <p className="mt-2 text-sm">
         <Link to={`/coffees/${loaderData.coffee.id}`} className="underline">
           {loaderData.coffee.name || "Untitled"}
         </Link>

@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
-import { data, Form, Link, redirect, useNavigation } from "react-router";
+import { data, Form, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { SiteNav } from "~/components/site-nav";
 import { Button } from "~/components/ui/button";
 import { db } from "~/db";
 import { roasters } from "~/db/schema";
@@ -51,15 +52,7 @@ export default function RoasterDetail({
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
-        <Link to="/roasters" className="underline">
-          Roasters
-        </Link>
-      </p>
+      <SiteNav />
       <h1 className="mt-4 font-serif text-4xl">{roaster.name}</h1>
       {roaster.country ? (
         <p className="mt-2">

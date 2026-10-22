@@ -1,6 +1,7 @@
 import { desc, eq, inArray } from "drizzle-orm";
 import { data, Link } from "react-router";
 import { z } from "zod";
+import { SiteNav } from "~/components/site-nav";
 import { db } from "~/db";
 import {
   cafes,
@@ -140,15 +141,8 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
-        <Link to="/cafes" className="underline">
-          Cafés
-        </Link>
-        {" · "}
+      <SiteNav />
+      <p className="mt-2 text-sm">
         <Link to={`/entries/new?cafeId=${cafe.id}`} className="underline">
           Log a cup
         </Link>

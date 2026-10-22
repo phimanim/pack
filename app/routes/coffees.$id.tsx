@@ -2,6 +2,7 @@ import { cn } from "cn";
 import { eq } from "drizzle-orm";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { SiteNav } from "~/components/site-nav";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { db } from "~/db";
 import {
@@ -154,11 +155,7 @@ export default function CoffeeDetail({
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <p className="text-sm">
-        <Link to="/coffees" className="underline">
-          Library
-        </Link>
-      </p>
+      <SiteNav />
       {coffee.image ? (
         <img
           src={coffee.image}

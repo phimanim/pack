@@ -1,5 +1,6 @@
-import { data, Form, Link, redirect, useNavigation } from "react-router";
+import { data, Form, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { SiteNav } from "~/components/site-nav";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -86,15 +87,7 @@ export default function NewRoaster({
   const values = actionData?.values;
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
-        <Link to="/roasters" className="underline">
-          Roasters
-        </Link>
-      </p>
+      <SiteNav />
       <h1 className="mt-4 font-serif text-4xl">Add a roaster</h1>
       {actionData?.error ? (
         <p className="mt-4 text-sm">{actionData.error}</p>

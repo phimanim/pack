@@ -1,7 +1,5 @@
-import { Coffee } from "lucide-react";
 import {
   isRouteErrorResponse,
-  Link,
   Links,
   Meta,
   type MiddlewareFunction,
@@ -9,9 +7,7 @@ import {
   redirect,
   Scripts,
   ScrollRestoration,
-  useLocation,
 } from "react-router";
-import { Button } from "~/components/ui/button";
 
 import type { Route } from "./+types/root";
 import { getSession } from "./sessions.server";
@@ -67,29 +63,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { pathname } = useLocation();
-  const showNav = pathname !== "/login" && pathname !== "/entries/new";
-  return (
-    <>
-      {showNav ? (
-        <header className="mx-auto flex max-w-5xl items-center justify-between px-8 pt-6">
-          <nav className="flex items-center gap-4 text-sm">
-            <Link to="/" className="font-medium">
-              Pack
-            </Link>
-            <Link to="/stats" className="underline">
-              Stats
-            </Link>
-          </nav>
-          <Button render={<Link to="/entries/new" />}>
-            <Coffee data-icon="inline-start" />
-            Log a cup
-          </Button>
-        </header>
-      ) : null}
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

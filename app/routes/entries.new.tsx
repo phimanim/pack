@@ -3,8 +3,9 @@ import { and, asc, desc, eq, inArray, max } from "drizzle-orm";
 import { XIcon } from "lucide-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
-import { data, Form, Link, redirect, useNavigation } from "react-router";
+import { data, Form, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { SiteNav } from "~/components/site-nav";
 import { Button } from "~/components/ui/button";
 import {
   Combobox,
@@ -703,15 +704,7 @@ export default function NewEntry({
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
-        <Link to="/cafes" className="underline">
-          Cafés
-        </Link>
-      </p>
+      <SiteNav />
       <h1 className="mt-4 font-serif text-4xl">Log a cup</h1>
       {actionData?.error ? (
         <p className="mt-4 text-sm">{actionData.error}</p>
