@@ -99,17 +99,24 @@ export default function RoasterDetail({
           {roaster.notes}
         </p>
       ) : null}
-      <Form
-        method="post"
-        className="mt-6"
-        onSubmit={(event) => {
-          if (!confirm("Delete this roaster?")) event.preventDefault();
-        }}
-      >
-        <Button type="submit" variant="outline" disabled={isDeleting}>
-          {isDeleting ? "Deleting…" : "Delete"}
-        </Button>
-      </Form>
+      <div className="mt-6 flex gap-2">
+        <Link
+          to={`/roasters/${roaster.id}/edit`}
+          className="border border-neutral-300 px-3 py-1"
+        >
+          Edit
+        </Link>
+        <Form
+          method="post"
+          onSubmit={(event) => {
+            if (!confirm("Delete this roaster?")) event.preventDefault();
+          }}
+        >
+          <Button type="submit" variant="outline" disabled={isDeleting}>
+            {isDeleting ? "Deleting…" : "Delete"}
+          </Button>
+        </Form>
+      </div>
     </main>
   );
 }
