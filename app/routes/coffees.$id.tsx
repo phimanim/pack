@@ -1,10 +1,10 @@
 import { eq } from "drizzle-orm";
-import { DateTime } from "luxon";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { db } from "~/db";
 import { coffees, roasters, vocabularies } from "~/db/schema";
+import { formatDate } from "~/lib/dates";
 import { formatMinor, formatPricePer100g } from "~/lib/money";
 
 type CoffeeDetail = {
@@ -126,7 +126,7 @@ export default function CoffeeDetail({
   const isDeleting = navigation.state !== "idle";
   const { coffee } = loaderData;
   const roastLabel = coffee.roastingDate
-    ? DateTime.fromISO(coffee.roastingDate).toLocaleString(DateTime.DATE_MED)
+    ? formatDate(coffee.roastingDate)
     : null;
 
   return (

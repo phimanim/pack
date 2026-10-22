@@ -9,7 +9,6 @@ import {
   or,
   sql,
 } from "drizzle-orm";
-import { DateTime } from "luxon";
 import { Form, Link, useSearchParams } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
@@ -35,6 +34,7 @@ import {
   roasters,
   vocabularies,
 } from "~/db/schema";
+import { formatDate } from "~/lib/dates";
 
 type Option = { id: string; label: string };
 
@@ -454,9 +454,7 @@ export default function Coffees({
       ) : (
         <ul className="mt-2 border border-neutral-300">
           {atHomeEntries.map((brew) => {
-            const tasted = DateTime.fromISO(brew.tastedAt).toLocaleString(
-              DateTime.DATE_MED,
-            );
+            const tasted = formatDate(brew.tastedAt);
             const recipe = brew.recipe;
             return (
               <li
@@ -522,9 +520,7 @@ export default function Coffees({
       ) : (
         <ul className="mt-2 border border-neutral-300">
           {outsideEntries.map((cup) => {
-            const tasted = DateTime.fromISO(cup.tastedAt).toLocaleString(
-              DateTime.DATE_MED,
-            );
+            const tasted = formatDate(cup.tastedAt);
             const recipe = cup.recipe;
             return (
               <li

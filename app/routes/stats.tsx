@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import { Link } from "react-router";
 import { db } from "~/db";
 import { coffees, entries, vocabularies } from "~/db/schema";
+import { formatDate, formatMonth } from "~/lib/dates";
 import { formatMinor } from "~/lib/money";
 
 const DAYS = 30;
@@ -189,7 +190,9 @@ async function loadSpend(): Promise<SpendPoint[]> {
 }
 
 function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
-  const max = Math.max(1, ...data.map((d) => d.count));
+  const peak = Math.max(0, ...data.map((d) => d.count));
+  // Bar scaling only: avoids dividing by zero on an empty window.
+  const max = Math.max(1, peak);
   const total = data.reduce((sum, d) => sum + d.count, 0);
   const first = DateTime.fromISO(data[0].day, { zone: "utc" });
   const last = DateTime.fromISO(data[data.length - 1].day, { zone: "utc" });
@@ -204,9 +207,7 @@ function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
       </p>
       <ul className="mt-4 flex h-40 items-end gap-1 border-b border-neutral-300">
         {data.map((d) => {
-          const label = DateTime.fromISO(d.day, { zone: "utc" }).toLocaleString(
-            DateTime.DATE_MED,
-          );
+          const label = formatDate(d.day);
           return (
             <li
               key={d.day}
@@ -227,9 +228,9 @@ function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
         })}
       </ul>
       <p className="mt-1 flex justify-between text-xs text-neutral-500">
-        <span>{first.toLocaleString(DateTime.DATE_MED)}</span>
-        <span>max {max}/day</span>
-        <span>{last.toLocaleString(DateTime.DATE_MED)}</span>
+        <span>{formatDate(first)}</span>
+        <span>max {peak}/day</span>
+        <span>{formatDate(last)}</span>
       </p>
     </section>
   );
@@ -295,9 +296,7 @@ function Spend({ data }: { data: SpendPoint[] }) {
                 </p>
                 <ul className="flex flex-col gap-2">
                   {point.months.map((m) => {
-                    const month = DateTime.fromFormat(m.month, "yyyy-MM", {
-                      zone: "utc",
-                    }).toFormat("LLL yyyy");
+                    const month = formatMonth(m.month);
                     return (
                       <li
                         key={m.month}
@@ -349,7 +348,9 @@ function Varieties({
   data: VarietyPoint[];
   totalCups: number;
 }) {
-  const max = Math.max(1, ...data.map((d) => d.count));
+  const peak = Math.max(0, ...data.map((d) => d.count));
+  // Bar scaling only: avoids dividing by zero on an empty window.
+  const max = Math.max(1, peak);
 
   return (
     <section aria-labelledby="varieties">

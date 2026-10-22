@@ -1,5 +1,4 @@
 import { desc, eq, inArray } from "drizzle-orm";
-import { DateTime } from "luxon";
 import { data, Link } from "react-router";
 import { z } from "zod";
 import { db } from "~/db";
@@ -13,6 +12,7 @@ import {
   roasters,
   vocabularies,
 } from "~/db/schema";
+import { formatDate } from "~/lib/dates";
 import { formatMinor } from "~/lib/money";
 
 type Cafe = typeof cafes.$inferSelect;
@@ -180,9 +180,7 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
       ) : (
         <ul className="mt-2 border border-neutral-300">
           {cups.map((cup) => {
-            const tasted = DateTime.fromISO(cup.tastedAt).toLocaleString(
-              DateTime.DATE_MED,
-            );
+            const tasted = formatDate(cup.tastedAt);
             const recipe = cup.recipe;
             return (
               <li
