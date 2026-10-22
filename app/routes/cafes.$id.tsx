@@ -195,7 +195,11 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
                     className="mb-2 aspect-square w-full max-w-48 border-2 border-outline-variant object-cover"
                   />
                 ) : null}
-                <p className="text-sm">{tasted}</p>
+                <p className="text-sm">
+                  <Link to={`/entries/${cup.id}`} className="underline">
+                    {tasted}
+                  </Link>
+                </p>
                 <p>
                   <Link to={`/coffees/${cup.coffee.id}`} className="underline">
                     {cup.coffee.name ?? "Untitled"}
