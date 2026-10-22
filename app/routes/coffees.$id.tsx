@@ -132,10 +132,6 @@ export default function CoffeeDetail({
   return (
     <main className="mx-auto max-w-2xl p-8">
       <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
         <Link to="/coffees" className="underline">
           Library
         </Link>
