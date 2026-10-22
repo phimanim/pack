@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Textarea } from "~/components/ui/textarea";
 import { VocabCombobox } from "~/components/vocab-combobox";
 import { db } from "~/db";
 import { coffees, roasters, vocabKinds, vocabularies } from "~/db/schema";
@@ -62,8 +63,6 @@ type ActionData = {
   error: string;
   values?: FormValues;
 };
-
-const fieldClass = "border-2 border-outline-variant px-2 py-1";
 
 function blankToNull(value: FormDataEntryValue | null): string | null {
   const s = String(value ?? "").trim();
@@ -692,12 +691,11 @@ export default function NewCoffee({
           <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
             Notes
           </span>
-          <textarea
+          <Textarea
             name="notes"
             rows={4}
             placeholder="What's on the bag"
             defaultValue={values?.notes ?? ""}
-            className={fieldClass}
           />
         </label>
         <label className="flex cursor-pointer items-center gap-2 text-sm">
