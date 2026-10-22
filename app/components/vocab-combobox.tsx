@@ -40,7 +40,13 @@ export function VocabCombobox({
   const [selectedIds, setSelectedIds] = useState<string[]>(
     multiple ? defaultIds : defaultIds.slice(0, 1),
   );
-  const [query, setQuery] = useState("");
+  // A single-select shows the selected label in its input, including when a
+  // default is preselected on first render.
+  const [query, setQuery] = useState(() =>
+    multiple
+      ? ""
+      : (initialTerms.find((term) => term.id === defaultIds[0])?.label ?? ""),
+  );
 
   const terms = [
     ...initialTerms,

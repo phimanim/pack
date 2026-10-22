@@ -1,5 +1,5 @@
 import { put } from "@vercel/blob";
-import { and, asc, eq, inArray, max } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, max } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
@@ -66,6 +66,7 @@ type LoaderData = {
   packNotes: VocabOption[];
   drippers: VocabOption[];
   paperFilters: VocabOption[];
+  lastGear: { dripperIds: string[]; paperFilterIds: string[] };
 };
 
 type FormValues = {
@@ -245,6 +246,26 @@ export async function loader({
       ? requestedCafeId
       : null;
 
+  // Prefill gear from the most recent filter cup.
+  const [lastFilter] = await db
+    .select({
+      dripperId: entries.dripperId,
+      paperFilterId: entries.paperFilterId,
+    })
+    .from(entries)
+    .where(eq(entries.extraction, "filter"))
+    .orderBy(desc(entries.tastedAt), desc(entries.createdAt))
+    .limit(1);
+  const lastDripperId =
+    lastFilter?.dripperId && hasTerm(terms, "dripper", lastFilter.dripperId)
+      ? lastFilter.dripperId
+      : null;
+  const lastPaperFilterId =
+    lastFilter?.paperFilterId &&
+    hasTerm(terms, "paper_filter", lastFilter.paperFilterId)
+      ? lastFilter.paperFilterId
+      : null;
+
   return {
     selectedCafeId,
     today: DateTime.now().toISODate() ?? "",
@@ -269,6 +290,10 @@ export async function loader({
     paperFilters: terms
       .filter((t) => t.kind === "paper_filter")
       .map((t) => ({ id: t.id, label: t.label })),
+    lastGear: {
+      dripperIds: lastDripperId ? [lastDripperId] : [],
+      paperFilterIds: lastPaperFilterId ? [lastPaperFilterId] : [],
+    },
   };
 }
 
@@ -902,7 +927,9 @@ export default function NewEntry({
                 kind="dripper"
                 name="dripperId"
                 terms={loaderData.drippers}
-                defaultIds={values?.dripperIds}
+                defaultIds={
+                  values ? values.dripperIds : loaderData.lastGear.dripperIds
+                }
                 placeholder="Search or add a dripper"
                 multiple={false}
               />
@@ -913,7 +940,11 @@ export default function NewEntry({
                 kind="paper_filter"
                 name="paperFilterId"
                 terms={loaderData.paperFilters}
-                defaultIds={values?.paperFilterIds}
+                defaultIds={
+                  values
+                    ? values.paperFilterIds
+                    : loaderData.lastGear.paperFilterIds
+                }
                 placeholder="Search or add a paper filter"
                 multiple={false}
               />
