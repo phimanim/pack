@@ -62,7 +62,8 @@ export async function action({ request }: { request: Request }) {
 
 export default function NewCafe({ actionData }: { actionData?: ActionData }) {
   const navigation = useNavigation();
-  const isSaving = navigation.state !== "idle";
+  const isSaving =
+    navigation.state !== "idle" && navigation.formMethod === "POST";
   const values = actionData?.values;
   return (
     <main className="mx-auto max-w-2xl p-8">

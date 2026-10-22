@@ -656,7 +656,8 @@ export default function NewEntry({
   actionData?: ActionData;
 }) {
   const navigation = useNavigation();
-  const isSaving = navigation.state !== "idle";
+  const isSaving =
+    navigation.state !== "idle" && navigation.formMethod === "POST";
   const values = actionData?.values ?? loaderData.prefill ?? undefined;
   const [mode, setMode] = useState<"existing" | "new">(
     values?.coffeeMode ?? "existing",

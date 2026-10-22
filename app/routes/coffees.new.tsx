@@ -406,7 +406,8 @@ export default function NewCoffee({
   actionData?: ActionData;
 }) {
   const navigation = useNavigation();
-  const isSaving = navigation.state !== "idle";
+  const isSaving =
+    navigation.state !== "idle" && navigation.formMethod === "POST";
   const values = actionData?.values;
   const { roasters: roasterOptions } = loaderData;
   const [photoName, setPhotoName] = useState<string | null>(null);
