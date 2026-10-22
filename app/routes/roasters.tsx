@@ -22,7 +22,7 @@ export default function Roasters({
   const { roasters: items } = loaderData;
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
+    <main className="mx-auto p-8">
       <p className="text-sm">
         <Link to="/" className="underline">
           Home
@@ -32,24 +32,23 @@ export default function Roasters({
           Add a roaster
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">Roasters</h1>
+      <h1 className="mt-4 mb-10 border-b-2 border-outline pb-4 font-serif text-4xl">
+        Roasters
+      </h1>
       {items.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-4 text-sm text-ink-muted">
           No roasters yet.{" "}
           <Link to="/roasters/new" className="underline">
             Add a roaster
           </Link>
         </p>
       ) : (
-        <ul className="mt-4 border border-neutral-300">
+        <ul className="mt-4 divide-y-2 divide-outline-variant border-y-2 border-outline">
           {items.map((roaster) => (
-            <li
-              key={roaster.id}
-              className="border-b border-neutral-300 last:border-b-0"
-            >
+            <li key={roaster.id}>
               <Link
                 to={`/roasters/${roaster.id}`}
-                className="block px-3 py-2 underline"
+                className="block py-3 font-serif text-xl underline-offset-4 hover:underline"
               >
                 {roaster.name}
               </Link>

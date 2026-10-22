@@ -144,13 +144,15 @@ export default function CoffeeDetail({
         <img
           src={coffee.image}
           alt=""
-          className="mt-4 aspect-square w-full border border-neutral-300 object-cover"
+          className="mt-4 aspect-square w-full border-2 border-outline-variant object-cover"
         />
       ) : null}
-      <h1 className="mt-4 text-xl">{coffee.name ?? "Untitled"}</h1>
+      <h1 className="mt-4 font-serif text-4xl">{coffee.name ?? "Untitled"}</h1>
       {coffee.roaster ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Roaster</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Roaster
+          </span>
           <br />
           <Link to={`/roasters/${coffee.roaster.id}`} className="underline">
             {coffee.roaster.name}
@@ -159,83 +161,105 @@ export default function CoffeeDetail({
       ) : null}
       {coffee.originCountryLabels.length > 0 ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Origin country</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Origin country
+          </span>
           <br />
           {coffee.originCountryLabels.join(", ")}
         </p>
       ) : null}
       {coffee.region ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Region</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Region
+          </span>
           <br />
           {coffee.region}
         </p>
       ) : null}
       {coffee.farm ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Farm</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Farm
+          </span>
           <br />
           {coffee.farm}
         </p>
       ) : null}
       {coffee.producer ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Producer</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Producer
+          </span>
           <br />
           {coffee.producer}
         </p>
       ) : null}
       {coffee.processLabels.length > 0 ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Process</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Process
+          </span>
           <br />
           {coffee.processLabels.join(", ")}
         </p>
       ) : null}
       {coffee.varietyLabels.length > 0 ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Variety</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Variety
+          </span>
           <br />
           {coffee.varietyLabels.join(", ")}
         </p>
       ) : null}
       {coffee.packNoteLabels.length > 0 ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Pack notes</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Pack notes
+          </span>
           <br />
           {coffee.packNoteLabels.join(", ")}
         </p>
       ) : null}
       {roastLabel ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Roast date</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Roast date
+          </span>
           <br />
           {roastLabel}
         </p>
       ) : null}
       {coffee.harvestYear ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Harvest year</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Harvest year
+          </span>
           <br />
           {coffee.harvestYear}
         </p>
       ) : null}
       {coffee.altitudeMeters != null ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Altitude</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Altitude
+          </span>
           <br />
           {coffee.altitudeMeters} m
         </p>
       ) : null}
       {coffee.priceMinor != null && coffee.currency ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Price</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Price
+          </span>
           <br />
           <span data-testid="price">
             {formatMinor(coffee.priceMinor, coffee.currency)}
           </span>
           {coffee.bagWeightGrams != null ? (
-            <span data-testid="price-per-100g" className="text-neutral-500">
+            <span data-testid="price-per-100g" className="text-ink-muted">
               {" "}
               (
               {formatPricePer100g(
@@ -250,14 +274,18 @@ export default function CoffeeDetail({
       ) : null}
       {coffee.bagWeightGrams != null ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Bag weight</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Bag weight
+          </span>
           <br />
           {coffee.bagWeightGrams} g
         </p>
       ) : null}
       {coffee.notes ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Notes</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Notes
+          </span>
           <br />
           {coffee.notes}
         </p>
@@ -271,7 +299,7 @@ export default function CoffeeDetail({
         />
         <span>
           <span className="font-medium">In my home library</span>
-          <span className="block text-xs text-neutral-500">
+          <span className="block text-xs text-ink-muted">
             {coffee.owned
               ? "You bought this coffee for your home library."
               : "You drank this coffee somewhere else."}
@@ -281,7 +309,7 @@ export default function CoffeeDetail({
       <div className="mt-4 flex gap-2">
         <Link
           to={`/coffees/${coffee.id}/edit`}
-          className="border border-neutral-300 px-3 py-1"
+          className="border-2 border-outline-variant px-3 py-1"
         >
           Edit
         </Link>

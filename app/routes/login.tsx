@@ -42,7 +42,7 @@ export async function action({ request }: Route.ActionArgs) {
 export default function Login({ actionData }: Route.ComponentProps) {
   return (
     <main className="mx-auto max-w-sm p-8">
-      <h1 className="text-xl">Pack</h1>
+      <h1 className="font-serif text-4xl">Pack</h1>
       {actionData?.error ? <p>{actionData.error}</p> : null}
       <Form method="post">
         <label>

@@ -82,7 +82,7 @@ export default function NewRoaster({
   const navigation = useNavigation();
   const isSaving = navigation.state !== "idle";
   const values = actionData?.values;
-  const fieldClass = "border border-neutral-300 px-2 py-1";
+  const fieldClass = "border-2 border-outline-variant px-2 py-1";
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -95,29 +95,42 @@ export default function NewRoaster({
           Roasters
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">Add a roaster</h1>
+      <h1 className="mt-4 font-serif text-4xl">Add a roaster</h1>
       {actionData?.error ? (
         <p className="mt-4 text-sm">{actionData.error}</p>
       ) : null}
-      <Form method="post" className="mt-4 flex flex-col gap-4">
+      <Form
+        method="post"
+        className="mt-4 flex flex-col gap-4 border-2 border-outline bg-container p-5 sm:p-6"
+      >
         <label className="flex flex-col text-sm">
-          Name
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Name
+          </span>
           <Input name="name" required defaultValue={values?.name ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
-          Country
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Country
+          </span>
           <Input name="country" defaultValue={values?.country ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
-          City
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            City
+          </span>
           <Input name="city" defaultValue={values?.city ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
-          URL
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            URL
+          </span>
           <Input name="url" defaultValue={values?.url ?? ""} />
         </label>
         <label className="flex flex-col text-sm">
-          Notes
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Notes
+          </span>
           <textarea
             name="notes"
             rows={4}

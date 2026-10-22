@@ -153,45 +153,46 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
           Log a cup
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">{cafe.name}</h1>
+      <h1 className="mt-4 font-serif text-4xl">{cafe.name}</h1>
       {cafe.city ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">City</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            City
+          </span>
           <br />
           {cafe.city}
         </p>
       ) : null}
       {cafe.notes ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Notes</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Notes
+          </span>
           <br />
           {cafe.notes}
         </p>
       ) : null}
 
-      <h2 className="mt-8 text-lg">Cups</h2>
+      <h2 className="mt-8 font-serif text-2xl">Cups</h2>
       {cups.length === 0 ? (
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-ink-muted">
           No cups yet.{" "}
           <Link to={`/entries/new?cafeId=${cafe.id}`} className="underline">
             Log a cup
           </Link>
         </p>
       ) : (
-        <ul className="mt-2 border border-neutral-300">
+        <ul className="mt-2 divide-y-2 divide-outline-variant border-y-2 border-outline">
           {cups.map((cup) => {
             const tasted = formatDate(cup.tastedAt);
             const recipe = cup.recipe;
             return (
-              <li
-                key={cup.id}
-                className="border-b border-neutral-300 px-3 py-2 last:border-b-0"
-              >
+              <li key={cup.id} className="px-3 py-2">
                 {cup.image ? (
                   <img
                     src={cup.image}
                     alt=""
-                    className="mb-2 aspect-square w-full max-w-48 border border-neutral-300 object-cover"
+                    className="mb-2 aspect-square w-full max-w-48 border-2 border-outline-variant object-cover"
                   />
                 ) : null}
                 <p className="text-sm">{tasted}</p>
@@ -204,38 +205,33 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
                     : null}
                 </p>
                 {cup.extraction ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     {extractionLabels[cup.extraction]}
                   </p>
                 ) : null}
                 {cup.priceMinor != null && cup.currency ? (
-                  <p
-                    data-testid="cup-price"
-                    className="text-sm text-neutral-500"
-                  >
+                  <p data-testid="cup-price" className="text-sm text-ink-muted">
                     {formatMinor(cup.priceMinor, cup.currency)}
                   </p>
                 ) : null}
                 {cup.gear ? (
-                  <p className="text-sm text-neutral-500">{cup.gear}</p>
+                  <p className="text-sm text-ink-muted">{cup.gear}</p>
                 ) : null}
                 {recipe?.bloomSeconds != null ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     Bloom {recipe.bloomSeconds}s
                   </p>
                 ) : null}
                 {recipe?.ratio ? (
-                  <p className="text-sm text-neutral-500">{recipe.ratio}</p>
+                  <p className="text-sm text-ink-muted">{recipe.ratio}</p>
                 ) : null}
                 {recipe?.temperature != null ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     {recipe.temperature}°C
                   </p>
                 ) : null}
                 {recipe?.description ? (
-                  <p className="text-sm text-neutral-500">
-                    {recipe.description}
-                  </p>
+                  <p className="text-sm text-ink-muted">{recipe.description}</p>
                 ) : null}
                 {cup.note ? <p className="mt-1 text-sm">{cup.note}</p> : null}
               </li>
@@ -244,16 +240,13 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
         </ul>
       )}
 
-      <h2 className="mt-8 text-lg">Coffees</h2>
+      <h2 className="mt-8 font-serif text-2xl">Coffees</h2>
       {drunk.length === 0 ? (
-        <p className="mt-2 text-sm text-neutral-500">Nothing drunk here yet.</p>
+        <p className="mt-2 text-sm text-ink-muted">Nothing drunk here yet.</p>
       ) : (
-        <ul className="mt-2 border border-neutral-300">
+        <ul className="mt-2 divide-y-2 divide-outline-variant border-y-2 border-outline">
           {drunk.map((coffee) => (
-            <li
-              key={coffee.id}
-              className="border-b border-neutral-300 last:border-b-0"
-            >
+            <li key={coffee.id}>
               <Link
                 to={`/coffees/${coffee.id}`}
                 className="block px-3 py-2 underline"

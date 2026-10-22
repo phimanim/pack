@@ -127,21 +127,24 @@ export default function Vocab({
           Home
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">Vocabularies</h1>
-      <p className="mt-2 text-sm text-neutral-500">
+      <h1 className="mt-4 font-serif text-4xl">Vocabularies</h1>
+      <p className="mt-2 text-sm text-ink-muted">
         Stored value is the id. Label is display only.
       </p>
 
       {(vocabKinds as readonly VocabKind[]).map((kind) => {
         const terms = termsByKind[kind];
         return (
-          <section key={kind} className="mt-8 border border-neutral-300 p-4">
-            <h2 className="text-lg">{sectionTitles[kind]}</h2>
-            <ul className="mt-3 space-y-1">
+          <section
+            key={kind}
+            className="mt-8 border-2 border-outline bg-container p-5 sm:p-6"
+          >
+            <h2 className="font-serif text-2xl">{sectionTitles[kind]}</h2>
+            <ul className="mt-3 divide-y-2 divide-outline-variant border-y-2 border-outline">
               {terms.map((term) => (
-                <li key={`${term.kind}:${term.id}`}>
+                <li key={`${term.kind}:${term.id}`} className="py-2">
                   {term.label}{" "}
-                  <span className="text-xs text-neutral-500">{term.id}</span>
+                  <span className="text-xs text-ink-muted">{term.id}</span>
                 </li>
               ))}
             </ul>
@@ -150,7 +153,9 @@ export default function Vocab({
               <input type="hidden" name="intent" value="add_term" />
               <input type="hidden" name="kind" value={kind} />
               <label className="flex flex-col text-sm">
-                Add a term
+                <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                  Add a term
+                </span>
                 <Input name="label" required />
               </label>
               <Button type="submit">Add</Button>

@@ -199,13 +199,13 @@ function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
 
   return (
     <section aria-labelledby="cups-per-day">
-      <h2 id="cups-per-day" className="text-lg">
+      <h2 id="cups-per-day" className="font-serif text-2xl">
         Cups per day
       </h2>
-      <p className="mt-1 text-sm text-neutral-500">
+      <p className="mt-1 text-sm text-ink-muted">
         {total} {total === 1 ? "cup" : "cups"} in the last {DAYS} days
       </p>
-      <ul className="mt-4 flex h-40 items-end gap-1 border-b border-neutral-300">
+      <ul className="mt-4 flex h-40 items-end gap-1 border-b-2 border-outline">
         {data.map((d) => {
           const label = formatDate(d.day);
           return (
@@ -217,7 +217,7 @@ function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
               className="flex h-full flex-1 flex-col justify-end"
             >
               <div
-                className="w-full bg-neutral-800"
+                className="w-full bg-ink"
                 style={{ height: `${(d.count / max) * 100}%` }}
               />
               <span className="sr-only">
@@ -227,7 +227,7 @@ function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
           );
         })}
       </ul>
-      <p className="mt-1 flex justify-between text-xs text-neutral-500">
+      <p className="mt-1 flex justify-between text-xs text-ink-muted">
         <span>{formatDate(first)}</span>
         <span>max {peak}/day</span>
         <span>{formatDate(last)}</span>
@@ -244,16 +244,16 @@ function averageLabel(avg: Average, currency: string) {
 function Spend({ data }: { data: SpendPoint[] }) {
   return (
     <section aria-labelledby="spend">
-      <h2 id="spend" className="text-lg">
+      <h2 id="spend" className="font-serif text-2xl">
         Spend
       </h2>
-      <p className="mt-1 text-sm text-neutral-500">
+      <p className="mt-1 text-sm text-ink-muted">
         Priced bags and priced cups drunk outside, per month. A bag counts in
         the month of its roast date, or the month it was added if it has none.
         Currencies are not converted.
       </p>
       {data.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500">Nothing priced yet.</p>
+        <p className="mt-4 text-sm text-ink-muted">Nothing priced yet.</p>
       ) : (
         <div className="mt-4 flex flex-col gap-8">
           {data.map((point) => {
@@ -274,7 +274,7 @@ function Spend({ data }: { data: SpendPoint[] }) {
                 </h3>
                 <dl className="grid grid-cols-2 gap-2 text-sm">
                   <div data-avg="outside">
-                    <dt className="text-neutral-500">
+                    <dt className="text-ink-muted">
                       Average outside cup ({point.outside.cups})
                     </dt>
                     <dd className="tabular-nums">
@@ -282,7 +282,7 @@ function Spend({ data }: { data: SpendPoint[] }) {
                     </dd>
                   </div>
                   <div data-avg="home">
-                    <dt className="text-neutral-500">
+                    <dt className="text-ink-muted">
                       Average home cup ({point.home.cups})
                     </dt>
                     <dd className="tabular-nums">
@@ -290,7 +290,7 @@ function Spend({ data }: { data: SpendPoint[] }) {
                     </dd>
                   </div>
                 </dl>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-ink-muted">
                   Home cup = bag price divided by the home cups logged from it,
                   bags with a price and at least one home cup only.
                 </p>
@@ -308,12 +308,12 @@ function Spend({ data }: { data: SpendPoint[] }) {
                         <span className="w-20 shrink-0">{month}</span>
                         <div className="flex h-4 flex-1">
                           <div
-                            className="h-full bg-neutral-800"
+                            className="h-full bg-ink"
                             title={`Bags: ${formatMinor(m.bagsMinor, point.currency)}`}
                             style={{ width: `${(m.bagsMinor / max) * 100}%` }}
                           />
                           <div
-                            className="h-full bg-neutral-400"
+                            className="h-full bg-moss"
                             title={`Cups: ${formatMinor(m.cupsMinor, point.currency)}`}
                             style={{ width: `${(m.cupsMinor / max) * 100}%` }}
                           />
@@ -328,7 +328,7 @@ function Spend({ data }: { data: SpendPoint[] }) {
                     );
                   })}
                 </ul>
-                <p className="flex gap-4 text-xs text-neutral-500">
+                <p className="flex gap-4 text-xs text-ink-muted">
                   <span>Dark: bags</span>
                   <span>Light: cups outside</span>
                 </p>
@@ -354,15 +354,15 @@ function Varieties({
 
   return (
     <section aria-labelledby="varieties">
-      <h2 id="varieties" className="text-lg">
+      <h2 id="varieties" className="font-serif text-2xl">
         Varieties
       </h2>
-      <p className="mt-1 text-sm text-neutral-500">
+      <p className="mt-1 text-sm text-ink-muted">
         {totalCups} {totalCups === 1 ? "cup" : "cups"} all time. A coffee with
         several varieties counts once for each.
       </p>
       {data.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500">No cups yet.</p>
+        <p className="mt-4 text-sm text-ink-muted">No cups yet.</p>
       ) : (
         <ul className="mt-4 flex flex-col gap-2">
           {data.map((d) => (
@@ -375,7 +375,7 @@ function Varieties({
               <span className="w-36 shrink-0 truncate">{d.label}</span>
               <div className="h-4 flex-1">
                 <div
-                  className="h-full bg-neutral-800"
+                  className="h-full bg-ink"
                   style={{ width: `${(d.count / max) * 100}%` }}
                 />
               </div>
@@ -398,7 +398,7 @@ export default function Stats({ loaderData }: { loaderData: StatsData }) {
           Home
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">Stats</h1>
+      <h1 className="mt-4 font-serif text-4xl">Stats</h1>
       <div className="mt-6 flex flex-col gap-10">
         <CupsPerDay data={loaderData.cupsPerDay} />
         <Spend data={loaderData.spend} />

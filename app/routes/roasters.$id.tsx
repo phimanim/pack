@@ -60,24 +60,30 @@ export default function RoasterDetail({
           Roasters
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">{roaster.name}</h1>
+      <h1 className="mt-4 font-serif text-4xl">{roaster.name}</h1>
       {roaster.country ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Country</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Country
+          </span>
           <br />
           {roaster.country}
         </p>
       ) : null}
       {roaster.city ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">City</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            City
+          </span>
           <br />
           {roaster.city}
         </p>
       ) : null}
       {roaster.url ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">URL</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            URL
+          </span>
           <br />
           <a href={roaster.url} className="underline">
             {roaster.url}
@@ -86,7 +92,9 @@ export default function RoasterDetail({
       ) : null}
       {roaster.notes ? (
         <p className="mt-2">
-          <span className="text-sm text-neutral-500">Notes</span>
+          <span className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Notes
+          </span>
           <br />
           {roaster.notes}
         </p>

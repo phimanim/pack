@@ -63,7 +63,7 @@ type ActionData = {
   values?: FormValues;
 };
 
-const fieldClass = "border border-neutral-300 px-2 py-1";
+const fieldClass = "border-2 border-outline-variant px-2 py-1";
 
 function blankToNull(value: FormDataEntryValue | null): string | null {
   const s = String(value ?? "").trim();
@@ -437,17 +437,19 @@ export default function NewCoffee({
           Library
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">Add a coffee</h1>
+      <h1 className="mt-4 font-serif text-4xl">Add a coffee</h1>
       {actionData?.error ? (
         <p className="mt-4 text-sm">{actionData.error}</p>
       ) : null}
       <Form
         method="post"
         encType="multipart/form-data"
-        className="mt-4 flex flex-col gap-4"
+        className="mt-4 flex flex-col gap-4 border-2 border-outline bg-container p-5 sm:p-6"
       >
         <label className="flex flex-col gap-1 text-sm">
-          Photo
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Photo
+          </span>
           <Input
             type="file"
             name="photo"
@@ -458,7 +460,9 @@ export default function NewCoffee({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Name *
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Name *
+          </span>
           <Input
             name="name"
             required
@@ -494,8 +498,10 @@ export default function NewCoffee({
             </SelectContent>
           </Select>
         </div>
-        <fieldset className="flex flex-col gap-2 border border-neutral-300 p-3 text-sm">
-          <legend>Or create a roaster</legend>
+        <fieldset className="flex flex-col gap-2 border-2 border-outline-variant p-3 text-sm">
+          <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Or create a roaster
+          </legend>
           <label className="flex flex-col">
             Name
             <Input
@@ -549,7 +555,9 @@ export default function NewCoffee({
           />
         </div>
         <label className="flex flex-col text-sm">
-          Region
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Region
+          </span>
           <Input
             name="region"
             placeholder="Yirgacheffe"
@@ -557,7 +565,9 @@ export default function NewCoffee({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Farm
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Farm
+          </span>
           <Input
             name="farm"
             placeholder="Finca La Esperanza"
@@ -565,7 +575,9 @@ export default function NewCoffee({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Producer
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Producer
+          </span>
           <Input
             name="producer"
             placeholder="Lopez family"
@@ -573,7 +585,9 @@ export default function NewCoffee({
           />
         </label>
         <fieldset className="text-sm">
-          <legend>Process</legend>
+          <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Process
+          </legend>
           <VocabCombobox
             kind="process"
             name="processIds"
@@ -583,7 +597,9 @@ export default function NewCoffee({
           />
         </fieldset>
         <fieldset className="text-sm">
-          <legend>Variety</legend>
+          <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Variety
+          </legend>
           <VocabCombobox
             kind="variety"
             name="varietyIds"
@@ -593,7 +609,9 @@ export default function NewCoffee({
           />
         </fieldset>
         <fieldset className="text-sm">
-          <legend>Pack notes</legend>
+          <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Pack notes
+          </legend>
           <VocabCombobox
             kind="pack_note"
             name="packNoteIds"
@@ -603,7 +621,9 @@ export default function NewCoffee({
           />
         </fieldset>
         <label className="flex flex-col text-sm">
-          Roast date
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Roast date
+          </span>
           <Input
             type="date"
             name="roastingDate"
@@ -612,7 +632,9 @@ export default function NewCoffee({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Harvest year
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Harvest year
+          </span>
           <Input
             name="harvestYear"
             inputMode="numeric"
@@ -621,7 +643,9 @@ export default function NewCoffee({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Altitude (m)
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Altitude (m)
+          </span>
           <Input
             name="altitudeMeters"
             inputMode="numeric"
@@ -631,7 +655,9 @@ export default function NewCoffee({
         </label>
         <div className="grid grid-cols-[1fr_6rem] gap-2">
           <label className="flex flex-col text-sm">
-            Price
+            <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+              Price
+            </span>
             <Input
               name="price"
               inputMode="decimal"
@@ -640,7 +666,9 @@ export default function NewCoffee({
             />
           </label>
           <label className="flex flex-col text-sm">
-            Currency
+            <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+              Currency
+            </span>
             <Input
               name="currency"
               maxLength={3}
@@ -650,7 +678,9 @@ export default function NewCoffee({
           </label>
         </div>
         <label className="flex flex-col text-sm">
-          Bag weight (g)
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Bag weight (g)
+          </span>
           <Input
             name="bagWeightGrams"
             inputMode="numeric"
@@ -659,7 +689,9 @@ export default function NewCoffee({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Notes
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Notes
+          </span>
           <textarea
             name="notes"
             rows={4}
@@ -678,7 +710,7 @@ export default function NewCoffee({
           />
           <span>
             <span className="font-medium">In my home library</span>
-            <span className="block text-xs text-neutral-500">
+            <span className="block text-xs text-ink-muted">
               Check if you bought this coffee. Uncheck if you drank it at a café
               or somewhere else.
             </span>

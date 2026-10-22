@@ -347,8 +347,8 @@ export default function Coffees({
           Vocabularies
         </Link>
       </p>
-      <div className="mt-4 flex items-center justify-between">
-        <h1 className="text-xl">Library</h1>
+      <div className="mt-4 mb-10 flex items-center justify-between border-b-2 border-outline pb-4">
+        <h1 className="font-serif text-4xl">Library</h1>
         <Button
           type="button"
           variant="outline"
@@ -362,7 +362,9 @@ export default function Coffees({
       </div>
       <div className="mt-4 flex flex-wrap items-end gap-4">
         <div className="w-full sm:w-64">
-          <p className="mb-1 text-xs text-neutral-500">Roasters</p>
+          <p className="mb-1 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Roasters
+          </p>
           <FilterCombobox
             options={roasterOptions}
             selectedIds={selectedRoasterIds}
@@ -371,7 +373,9 @@ export default function Coffees({
           />
         </div>
         <div className="w-full sm:w-64">
-          <p className="mb-1 text-xs text-neutral-500">Countries</p>
+          <p className="mb-1 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Countries
+          </p>
           <FilterCombobox
             options={countryOptions}
             selectedIds={selectedCountryIds}
@@ -401,7 +405,7 @@ export default function Coffees({
         ) : null}
       </div>
       {items.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-4 text-sm text-ink-muted">
           {hasFilters
             ? "No packs match your filters."
             : "No packs in the library. "}
@@ -416,7 +420,7 @@ export default function Coffees({
           {items.map((coffee) => (
             <li
               key={coffee.id}
-              className="border border-neutral-300 -mr-px -mb-px"
+              className="border-2 border-outline-variant -mr-px -mb-px"
             >
               <Link to={`/coffees/${coffee.id}`} className="block">
                 {coffee.image ? (
@@ -426,15 +430,15 @@ export default function Coffees({
                     className="aspect-square w-full object-cover"
                   />
                 ) : (
-                  <div className="aspect-square w-full bg-neutral-50 p-3 text-sm">
+                  <div className="aspect-square w-full bg-container p-3 text-sm">
                     {coffee.name ?? "Untitled"}
                   </div>
                 )}
-                <p className="border-t border-neutral-300 px-2 py-1 text-sm">
+                <p className="border-t-2 border-outline-variant px-2 py-1 text-sm">
                   {coffee.name ?? "Untitled"}
                 </p>
                 {coffee.roasterName ? (
-                  <p className="px-2 pb-2 text-xs text-neutral-500">
+                  <p className="px-2 pb-2 text-xs text-ink-muted">
                     {coffee.roasterName}
                   </p>
                 ) : null}
@@ -443,29 +447,26 @@ export default function Coffees({
           ))}
         </ul>
       )}
-      <h2 className="mt-8 text-lg">At home</h2>
+      <h2 className="mt-8 font-serif text-2xl">At home</h2>
       {atHomeEntries.length === 0 ? (
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-ink-muted">
           No home brews yet.{" "}
           <Link to="/entries/new" className="underline">
             Log a cup
           </Link>
         </p>
       ) : (
-        <ul className="mt-2 border border-neutral-300">
+        <ul className="mt-2 divide-y-2 divide-outline-variant border-y-2 border-outline">
           {atHomeEntries.map((brew) => {
             const tasted = formatDate(brew.tastedAt);
             const recipe = brew.recipe;
             return (
-              <li
-                key={brew.id}
-                className="border-b border-neutral-300 px-3 py-2 last:border-b-0"
-              >
+              <li key={brew.id} className="px-3 py-2">
                 {brew.image ? (
                   <img
                     src={brew.image}
                     alt=""
-                    className="mb-2 aspect-square w-full max-w-48 border border-neutral-300 object-cover"
+                    className="mb-2 aspect-square w-full max-w-48 border-2 border-outline-variant object-cover"
                   />
                 ) : null}
                 <p className="text-sm">{tasted}</p>
@@ -478,30 +479,28 @@ export default function Coffees({
                     : null}
                 </p>
                 {brew.extraction ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     {extractionLabels[brew.extraction]}
                   </p>
                 ) : null}
                 {brew.gear ? (
-                  <p className="text-sm text-neutral-500">{brew.gear}</p>
+                  <p className="text-sm text-ink-muted">{brew.gear}</p>
                 ) : null}
                 {recipe?.bloomSeconds != null ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     Bloom {recipe.bloomSeconds}s
                   </p>
                 ) : null}
                 {recipe?.ratio ? (
-                  <p className="text-sm text-neutral-500">{recipe.ratio}</p>
+                  <p className="text-sm text-ink-muted">{recipe.ratio}</p>
                 ) : null}
                 {recipe?.temperature != null ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     {recipe.temperature}°C
                   </p>
                 ) : null}
                 {recipe?.description ? (
-                  <p className="text-sm text-neutral-500">
-                    {recipe.description}
-                  </p>
+                  <p className="text-sm text-ink-muted">{recipe.description}</p>
                 ) : null}
                 {brew.note ? <p className="mt-1 text-sm">{brew.note}</p> : null}
               </li>
@@ -511,27 +510,24 @@ export default function Coffees({
       )}
       <h3 className="mt-6 text-sm font-medium">Cups</h3>
       {outsideEntries.length === 0 ? (
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-ink-muted">
           No cups yet.{" "}
           <Link to="/entries/new" className="underline">
             Log a cup
           </Link>
         </p>
       ) : (
-        <ul className="mt-2 border border-neutral-300">
+        <ul className="mt-2 divide-y-2 divide-outline-variant border-y-2 border-outline">
           {outsideEntries.map((cup) => {
             const tasted = formatDate(cup.tastedAt);
             const recipe = cup.recipe;
             return (
-              <li
-                key={cup.id}
-                className="border-b border-neutral-300 px-3 py-2 last:border-b-0"
-              >
+              <li key={cup.id} className="px-3 py-2">
                 {cup.image ? (
                   <img
                     src={cup.image}
                     alt=""
-                    className="mb-2 aspect-square w-full max-w-48 border border-neutral-300 object-cover"
+                    className="mb-2 aspect-square w-full max-w-48 border-2 border-outline-variant object-cover"
                   />
                 ) : null}
                 <p className="text-sm">{tasted}</p>
@@ -543,36 +539,34 @@ export default function Coffees({
                     ? ` · ${cup.coffee.roasterName}`
                     : null}
                 </p>
-                <p className="text-sm text-neutral-500">
+                <p className="text-sm text-ink-muted">
                   <Link to={`/cafes/${cup.cafe.id}`} className="underline">
                     {cup.cafe.name}
                   </Link>
                 </p>
                 {cup.extraction ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     {extractionLabels[cup.extraction]}
                   </p>
                 ) : null}
                 {cup.gear ? (
-                  <p className="text-sm text-neutral-500">{cup.gear}</p>
+                  <p className="text-sm text-ink-muted">{cup.gear}</p>
                 ) : null}
                 {recipe?.bloomSeconds != null ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     Bloom {recipe.bloomSeconds}s
                   </p>
                 ) : null}
                 {recipe?.ratio ? (
-                  <p className="text-sm text-neutral-500">{recipe.ratio}</p>
+                  <p className="text-sm text-ink-muted">{recipe.ratio}</p>
                 ) : null}
                 {recipe?.temperature != null ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-muted">
                     {recipe.temperature}°C
                   </p>
                 ) : null}
                 {recipe?.description ? (
-                  <p className="text-sm text-neutral-500">
-                    {recipe.description}
-                  </p>
+                  <p className="text-sm text-ink-muted">{recipe.description}</p>
                 ) : null}
                 {cup.note ? <p className="mt-1 text-sm">{cup.note}</p> : null}
               </li>

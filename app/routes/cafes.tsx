@@ -22,7 +22,7 @@ export default function Cafes({
   const { cafes: items } = loaderData;
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
+    <main className="mx-auto p-8">
       <p className="text-sm">
         <Link to="/" className="underline">
           Home
@@ -32,24 +32,23 @@ export default function Cafes({
           Add a café
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">Cafés</h1>
+      <h1 className="mt-4 mb-10 border-b-2 border-outline pb-4 font-serif text-4xl">
+        Cafés
+      </h1>
       {items.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-4 text-sm text-ink-muted">
           No cafés yet.{" "}
           <Link to="/cafes/new" className="underline">
             Add a café
           </Link>
         </p>
       ) : (
-        <ul className="mt-4 border border-neutral-300">
+        <ul className="mt-4 divide-y-2 divide-outline-variant border-y-2 border-outline">
           {items.map((cafe) => (
-            <li
-              key={cafe.id}
-              className="border-b border-neutral-300 last:border-b-0"
-            >
+            <li key={cafe.id}>
               <Link
                 to={`/cafes/${cafe.id}`}
-                className="block px-3 py-2 underline"
+                className="block py-3 font-serif text-xl underline-offset-4 hover:underline"
               >
                 {cafe.name}
               </Link>

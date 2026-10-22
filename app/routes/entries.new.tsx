@@ -101,7 +101,7 @@ type ActionData = {
   values?: FormValues;
 };
 
-const fieldClass = "border border-neutral-300 px-2 py-1";
+const fieldClass = "border-2 border-outline-variant px-2 py-1";
 
 function blankToNull(value: FormDataEntryValue | null): string | null {
   const s = String(value ?? "").trim();
@@ -645,17 +645,19 @@ export default function NewEntry({
           Cafés
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">Log a cup</h1>
+      <h1 className="mt-4 font-serif text-4xl">Log a cup</h1>
       {actionData?.error ? (
         <p className="mt-4 text-sm">{actionData.error}</p>
       ) : null}
       <Form
         method="post"
         encType="multipart/form-data"
-        className="mt-4 flex flex-col gap-4"
+        className="mt-4 flex flex-col gap-4 border-2 border-outline bg-container p-5 sm:p-6"
       >
         <label className="flex flex-col text-sm">
-          Where did you drink it?
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Where did you drink it?
+          </span>
           <Select
             name="cafeId"
             defaultValue={(values?.cafeId ?? loaderData.selectedCafeId) || null}
@@ -677,12 +679,14 @@ export default function NewEntry({
               </SelectGroup>
             </SelectContent>
           </Select>
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-ink-muted">
             Defaults to home. Pick a café only if you drank it out.
           </span>
         </label>
-        <fieldset className="flex flex-col gap-2 border border-neutral-300 p-3 text-sm">
-          <legend>Drank it at a new café? Add it here</legend>
+        <fieldset className="flex flex-col gap-2 border-2 border-outline-variant p-3 text-sm">
+          <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Drank it at a new café? Add it here
+          </legend>
           <label className="flex flex-col">
             Name
             <Input
@@ -711,7 +715,9 @@ export default function NewEntry({
           </label>
         </fieldset>
         <fieldset className="text-sm">
-          <legend>Coffee</legend>
+          <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Coffee
+          </legend>
           <label className="mt-2 flex cursor-pointer items-center gap-2">
             <input
               type="radio"
@@ -773,7 +779,9 @@ export default function NewEntry({
         ) : (
           <>
             <label className="flex flex-col gap-1 text-sm">
-              Photo
+              <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Photo
+              </span>
               <Input
                 type="file"
                 name="photo"
@@ -784,7 +792,9 @@ export default function NewEntry({
               />
             </label>
             <label className="flex flex-col text-sm">
-              Name
+              <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Name
+              </span>
               <Input
                 name="name"
                 placeholder="Las Flores"
@@ -792,7 +802,9 @@ export default function NewEntry({
               />
             </label>
             <label className="flex flex-col text-sm">
-              Roaster
+              <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Roaster
+              </span>
               <Select
                 name="roasterId"
                 defaultValue={values?.roasterId || null}
@@ -815,7 +827,9 @@ export default function NewEntry({
               </Select>
             </label>
             <label className="flex flex-col text-sm">
-              Or create a roaster
+              <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Or create a roaster
+              </span>
               <Input
                 name="newRoasterName"
                 placeholder="April"
@@ -842,7 +856,9 @@ export default function NewEntry({
               />
             </div>
             <fieldset className="text-sm">
-              <legend>Process</legend>
+              <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Process
+              </legend>
               <VocabCombobox
                 kind="process"
                 name="processIds"
@@ -852,7 +868,9 @@ export default function NewEntry({
               />
             </fieldset>
             <fieldset className="text-sm">
-              <legend>Variety</legend>
+              <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Variety
+              </legend>
               <VocabCombobox
                 kind="variety"
                 name="varietyIds"
@@ -862,7 +880,9 @@ export default function NewEntry({
               />
             </fieldset>
             <fieldset className="text-sm">
-              <legend>Pack notes</legend>
+              <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Pack notes
+              </legend>
               <VocabCombobox
                 kind="pack_note"
                 name="packNoteIds"
@@ -875,7 +895,9 @@ export default function NewEntry({
         )}
 
         <label className="flex flex-col gap-1 text-sm">
-          Cup photo
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Cup photo
+          </span>
           <Input
             type="file"
             name="entryPhoto"
@@ -886,7 +908,9 @@ export default function NewEntry({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Date *
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Date *
+          </span>
           <Input
             type="date"
             name="tastedAt"
@@ -896,7 +920,9 @@ export default function NewEntry({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Extraction
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Extraction
+          </span>
           <Select
             name="extraction"
             defaultValue={values?.extraction || null}
@@ -922,7 +948,9 @@ export default function NewEntry({
         {extraction === "filter" ? (
           <>
             <fieldset className="text-sm">
-              <legend>Dripper</legend>
+              <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Dripper
+              </legend>
               <VocabCombobox
                 kind="dripper"
                 name="dripperId"
@@ -935,7 +963,9 @@ export default function NewEntry({
               />
             </fieldset>
             <fieldset className="text-sm">
-              <legend>Paper filter</legend>
+              <legend className="font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Paper filter
+              </legend>
               <VocabCombobox
                 kind="paper_filter"
                 name="paperFilterId"
@@ -952,7 +982,9 @@ export default function NewEntry({
           </>
         ) : null}
         <label className="flex flex-col text-sm">
-          Bloom (seconds)
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Bloom (seconds)
+          </span>
           <Input
             name="bloomSeconds"
             inputMode="numeric"
@@ -961,7 +993,9 @@ export default function NewEntry({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Ratio
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Ratio
+          </span>
           <Input
             name="ratio"
             placeholder="1:16"
@@ -969,7 +1003,9 @@ export default function NewEntry({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Temperature (°C)
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Temperature (°C)
+          </span>
           <Input
             name="temperature"
             inputMode="decimal"
@@ -978,7 +1014,9 @@ export default function NewEntry({
           />
         </label>
         <label className="flex flex-col text-sm">
-          Description
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Description
+          </span>
           <textarea
             name="description"
             rows={3}
@@ -990,7 +1028,9 @@ export default function NewEntry({
         {hasCafe ? (
           <div className="grid grid-cols-[1fr_6rem] gap-2">
             <label className="flex flex-col text-sm">
-              Price
+              <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Price
+              </span>
               <Input
                 name="price"
                 inputMode="decimal"
@@ -999,7 +1039,9 @@ export default function NewEntry({
               />
             </label>
             <label className="flex flex-col text-sm">
-              Currency
+              <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+                Currency
+              </span>
               <Input
                 name="currency"
                 maxLength={3}
@@ -1010,7 +1052,9 @@ export default function NewEntry({
           </div>
         ) : null}
         <label className="flex flex-col text-sm">
-          Note
+          <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
+            Note
+          </span>
           <textarea
             name="note"
             rows={3}
