@@ -152,6 +152,10 @@ export default function CafeDetail({ loaderData }: { loaderData: LoaderData }) {
         <Link to={`/entries/new?cafeId=${cafe.id}`} className="underline">
           Log a cup
         </Link>
+        {" · "}
+        <Link to={`/cafes/${cafe.id}/edit`} className="underline">
+          Edit
+        </Link>
       </p>
       <h1 className="mt-4 font-serif text-4xl">{cafe.name}</h1>
       {cafe.city ? (
