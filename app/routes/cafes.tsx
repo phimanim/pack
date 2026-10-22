@@ -1,6 +1,7 @@
 import { asc } from "drizzle-orm";
 import { Link } from "react-router";
 import { SiteNav } from "~/components/site-nav";
+import { buttonVariants } from "~/components/ui/button";
 import { db } from "~/db";
 import { cafes } from "~/db/schema";
 
@@ -25,9 +26,15 @@ export default function Cafes({
   return (
     <main className="mx-auto p-8">
       <SiteNav />
-      <h1 className="mt-4 mb-10 border-b-2 border-outline pb-4 font-serif text-4xl">
-        Cafés
-      </h1>
+      <div className="mt-4 mb-10 flex items-end justify-between gap-4 border-b-2 border-outline pb-4">
+        <h1 className="font-serif text-4xl">Cafés</h1>
+        <Link
+          to="/cafes/new"
+          className={buttonVariants({ variant: "outline" })}
+        >
+          Add a café
+        </Link>
+      </div>
       {items.length === 0 ? (
         <p className="mt-4 text-sm text-ink-muted">
           No cafés yet.{" "}
