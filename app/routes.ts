@@ -8,6 +8,7 @@ export default [
   route("roasters", "routes/roasters.tsx"),
   route("roasters/new", "routes/roasters.new.tsx"),
   route("roasters/:id", "routes/roasters.$id.tsx"),
+  route("roasters/:id/edit", "routes/roasters.$id.edit.tsx"),
   route("cafes", "routes/cafes.tsx"),
   route("cafes/new", "routes/cafes.new.tsx"),
   route("cafes/:id", "routes/cafes.$id.tsx"),
