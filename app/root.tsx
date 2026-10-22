@@ -73,9 +73,14 @@ export default function App() {
     <>
       {showNav ? (
         <header className="mx-auto flex max-w-5xl items-center justify-between px-8 pt-6">
-          <Link to="/" className="text-sm font-medium">
-            Pack
-          </Link>
+          <nav className="flex items-center gap-4 text-sm">
+            <Link to="/" className="font-medium">
+              Pack
+            </Link>
+            <Link to="/stats" className="underline">
+              Stats
+            </Link>
+          </nav>
           <Button render={<Link to="/entries/new" />}>
             <Coffee data-icon="inline-start" />
             Log a cup
