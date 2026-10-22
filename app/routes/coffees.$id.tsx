@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { db } from "~/db";
 import { coffees, roasters, vocabularies } from "~/db/schema";
+import { formatMinor, formatPricePer100g } from "~/lib/money";
 
 type CoffeeDetail = {
   id: string;
@@ -15,6 +16,9 @@ type CoffeeDetail = {
   farm: string | null;
   altitudeMeters: number | null;
   harvestYear: number | null;
+  priceMinor: number | null;
+  currency: string | null;
+  bagWeightGrams: number | null;
   roastingDate: string | null;
   notes: string | null;
   owned: boolean;
@@ -84,6 +88,9 @@ export async function loader({
       farm: coffee.farm,
       altitudeMeters: coffee.altitudeMeters,
       harvestYear: coffee.harvestYear,
+      priceMinor: coffee.priceMinor,
+      currency: coffee.currency,
+      bagWeightGrams: coffee.bagWeightGrams,
       roastingDate: coffee.roastingDate,
       notes: coffee.notes,
       owned: coffee.owned,
@@ -218,6 +225,34 @@ export default function CoffeeDetail({
           <span className="text-sm text-neutral-500">Altitude</span>
           <br />
           {coffee.altitudeMeters} m
+        </p>
+      ) : null}
+      {coffee.priceMinor != null && coffee.currency ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Price</span>
+          <br />
+          <span data-testid="price">
+            {formatMinor(coffee.priceMinor, coffee.currency)}
+          </span>
+          {coffee.bagWeightGrams != null ? (
+            <span data-testid="price-per-100g" className="text-neutral-500">
+              {" "}
+              (
+              {formatPricePer100g(
+                coffee.priceMinor,
+                coffee.currency,
+                coffee.bagWeightGrams,
+              )}{" "}
+              per 100 g)
+            </span>
+          ) : null}
+        </p>
+      ) : null}
+      {coffee.bagWeightGrams != null ? (
+        <p className="mt-2">
+          <span className="text-sm text-neutral-500">Bag weight</span>
+          <br />
+          {coffee.bagWeightGrams} g
         </p>
       ) : null}
       {coffee.notes ? (

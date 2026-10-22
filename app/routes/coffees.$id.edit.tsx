@@ -17,6 +17,12 @@ import {
 import { VocabCombobox } from "~/components/vocab-combobox";
 import { db } from "~/db";
 import { coffees, roasters, vocabKinds, vocabularies } from "~/db/schema";
+import {
+  defaultCurrency,
+  isCurrencyCode,
+  minorToInput,
+  parseMoneyToMinor,
+} from "~/lib/money";
 import { slugifyTerm } from "~/lib/slug";
 
 type VocabOption = { id: string; label: string };
@@ -39,6 +45,9 @@ type CoffeeValues = {
   packNoteIds: string[];
   altitudeMeters: number | null;
   harvestYear: number | null;
+  price: string;
+  currency: string;
+  bagWeightGrams: number | null;
   roastingDate: string | null;
   notes: string | null;
   owned: boolean;
@@ -69,6 +78,9 @@ type FormValues = {
   packNoteIds: string[];
   altitudeMeters: string;
   harvestYear: string;
+  price: string;
+  currency: string;
+  bagWeightGrams: string;
   roastingDate: string;
   notes: string;
   owned: boolean;
@@ -144,6 +156,19 @@ const schema = z
       .min(1900)
       .max(DateTime.now().year + 1)
       .nullable(),
+    priceMinor: z.number().int("Price is invalid").min(0).nullable(),
+    currency: z
+      .string()
+      .nullable()
+      .refine(
+        (value) => value == null || isCurrencyCode(value),
+        "Currency must be a 3-letter code like EUR",
+      ),
+    bagWeightGrams: z
+      .number()
+      .int("Bag weight must be a whole number of grams")
+      .min(1, "Bag weight must be at least 1 g")
+      .nullable(),
     roastingDate: z
       .string()
       .nullable()
@@ -212,6 +237,12 @@ export async function loader({
       packNoteIds: coffee.packNoteIds,
       altitudeMeters: coffee.altitudeMeters,
       harvestYear: coffee.harvestYear,
+      price:
+        coffee.priceMinor != null && coffee.currency
+          ? minorToInput(coffee.priceMinor, coffee.currency)
+          : "",
+      currency: coffee.currency ?? defaultCurrency,
+      bagWeightGrams: coffee.bagWeightGrams,
       roastingDate: coffee.roastingDate,
       notes: coffee.notes,
       owned: coffee.owned,
@@ -303,6 +334,9 @@ export async function action({
     packNoteIds: formData.getAll("packNoteIds").map(String),
     altitudeMeters: String(formData.get("altitudeMeters") ?? ""),
     harvestYear: String(formData.get("harvestYear") ?? ""),
+    price: String(formData.get("price") ?? ""),
+    currency: String(formData.get("currency") ?? ""),
+    bagWeightGrams: String(formData.get("bagWeightGrams") ?? ""),
     roastingDate: String(formData.get("roastingDate") ?? ""),
     notes: String(formData.get("notes") ?? ""),
     owned: formData.get("owned") === "true",
@@ -315,6 +349,25 @@ export async function action({
   const harvestYear = blankToInt(formData.get("harvestYear"));
   if (Number.isNaN(altitudeMeters) || Number.isNaN(harvestYear)) {
     return fail("Altitude and harvest year must be whole numbers");
+  }
+
+  const currency = values.currency.trim().toUpperCase() || null;
+  if (currency != null && !isCurrencyCode(currency)) {
+    return fail("Currency must be a 3-letter code like EUR");
+  }
+  const priceMinor = parseMoneyToMinor(
+    formData.get("price"),
+    currency ?? defaultCurrency,
+  );
+  if (Number.isNaN(priceMinor)) {
+    return fail("Price must be a number like 12.50");
+  }
+  if (priceMinor != null && currency == null) {
+    return fail("Choose a currency for the price");
+  }
+  const bagWeightGrams = blankToInt(formData.get("bagWeightGrams"));
+  if (Number.isNaN(bagWeightGrams)) {
+    return fail("Bag weight must be a whole number of grams");
   }
 
   const parsedForm = schema.safeParse({
@@ -333,6 +386,9 @@ export async function action({
     packNoteIds: values.packNoteIds.filter((id) => id !== ""),
     altitudeMeters,
     harvestYear,
+    priceMinor,
+    currency: priceMinor == null ? null : currency,
+    bagWeightGrams,
     roastingDate: blankToNull(formData.get("roastingDate")),
     notes: blankToNull(formData.get("notes")),
   });
@@ -426,6 +482,9 @@ export async function action({
       packNoteIds: parsedForm.data.packNoteIds,
       altitudeMeters: parsedForm.data.altitudeMeters,
       harvestYear: parsedForm.data.harvestYear,
+      priceMinor: parsedForm.data.priceMinor,
+      currency: parsedForm.data.currency,
+      bagWeightGrams: parsedForm.data.bagWeightGrams,
       roastingDate: parsedForm.data.roastingDate
         ? DateTime.fromISO(parsedForm.data.roastingDate, {
             zone: "utc",
@@ -677,6 +736,35 @@ export default function EditCoffee({
             inputMode="numeric"
             placeholder="1800"
             defaultValue={values?.altitudeMeters?.toString() ?? ""}
+          />
+        </label>
+        <div className="grid grid-cols-[1fr_6rem] gap-2">
+          <label className="flex flex-col text-sm">
+            Price
+            <Input
+              name="price"
+              inputMode="decimal"
+              placeholder="12.50"
+              defaultValue={values?.price ?? ""}
+            />
+          </label>
+          <label className="flex flex-col text-sm">
+            Currency
+            <Input
+              name="currency"
+              maxLength={3}
+              placeholder="EUR"
+              defaultValue={values?.currency ?? defaultCurrency}
+            />
+          </label>
+        </div>
+        <label className="flex flex-col text-sm">
+          Bag weight (g)
+          <Input
+            name="bagWeightGrams"
+            inputMode="numeric"
+            placeholder="250"
+            defaultValue={values?.bagWeightGrams?.toString() ?? ""}
           />
         </label>
         <label className="flex flex-col text-sm">
