@@ -36,7 +36,7 @@
         "noLabelWithoutControl": {
           "level": "error",
           "options": {
-            "inputComponents": ["Input", "Select", "SelectTrigger"]
+            "inputComponents": ["Input", "Textarea", "Select", "SelectTrigger"]
           }
         }
       },

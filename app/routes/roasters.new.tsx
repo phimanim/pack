@@ -2,6 +2,7 @@ import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
 import { db } from "~/db";
 import { roasters } from "~/db/schema";
 
@@ -82,8 +83,6 @@ export default function NewRoaster({
   const navigation = useNavigation();
   const isSaving = navigation.state !== "idle";
   const values = actionData?.values;
-  const fieldClass = "border-2 border-outline-variant px-2 py-1";
-
   return (
     <main className="mx-auto max-w-2xl p-8">
       <p className="text-sm">
@@ -131,12 +130,7 @@ export default function NewRoaster({
           <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
             Notes
           </span>
-          <textarea
-            name="notes"
-            rows={4}
-            defaultValue={values?.notes ?? ""}
-            className={fieldClass}
-          />
+          <Textarea name="notes" rows={4} defaultValue={values?.notes ?? ""} />
         </label>
         <Button type="submit" className="self-start" disabled={isSaving}>
           {isSaving ? "Saving…" : "Save"}

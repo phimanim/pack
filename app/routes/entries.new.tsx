@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Textarea } from "~/components/ui/textarea";
 import { VocabCombobox } from "~/components/vocab-combobox";
 import { db } from "~/db";
 import {
@@ -101,8 +102,6 @@ type ActionData = {
   error: string;
   values?: FormValues;
 };
-
-const fieldClass = "border-2 border-outline-variant px-2 py-1";
 
 function blankToNull(value: FormDataEntryValue | null): string | null {
   const s = String(value ?? "").trim();
@@ -721,11 +720,10 @@ export default function NewEntry({
           </label>
           <label className="flex flex-col">
             Notes
-            <textarea
+            <Textarea
               name="newCafeNotes"
               rows={3}
               defaultValue={values?.newCafeNotes ?? ""}
-              className={fieldClass}
             />
           </label>
         </fieldset>
@@ -1032,12 +1030,11 @@ export default function NewEntry({
           <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
             Description
           </span>
-          <textarea
+          <Textarea
             name="description"
             rows={3}
             placeholder="Kalita, slow spirals"
             defaultValue={values?.description ?? ""}
-            className={fieldClass}
           />
         </label>
         {hasCafe ? (
@@ -1070,12 +1067,7 @@ export default function NewEntry({
           <span className="mb-1.5 font-sans text-xs font-medium uppercase tracking-widest text-ink-muted">
             Note
           </span>
-          <textarea
-            name="note"
-            rows={3}
-            defaultValue={values?.note ?? ""}
-            className={fieldClass}
-          />
+          <Textarea name="note" rows={3} defaultValue={values?.note ?? ""} />
         </label>
         <Button type="submit" className="self-start" disabled={isSaving}>
           {isSaving ? "Saving…" : "Save"}
