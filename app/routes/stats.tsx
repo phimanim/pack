@@ -1,14 +1,22 @@
-import { gte } from "drizzle-orm";
+import { eq, gte } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { Link } from "react-router";
 import { db } from "~/db";
-import { entries } from "~/db/schema";
+import { coffees, entries, vocabularies } from "~/db/schema";
 
 const DAYS = 30;
 
 type CupsPerDayPoint = { day: string; count: number };
 
-type StatsData = { cupsPerDay: CupsPerDayPoint[] };
+type VarietyPoint = { id: string; label: string; count: number };
+
+type StatsData = {
+  cupsPerDay: CupsPerDayPoint[];
+  varieties: VarietyPoint[];
+  totalCups: number;
+};
+
+const NO_VARIETY = "__none__";
 
 export async function loader(): Promise<StatsData> {
   const today = DateTime.now().startOf("day");
@@ -31,7 +39,36 @@ export async function loader(): Promise<StatsData> {
     cupsPerDay.push({ day, count: counts.get(day) ?? 0 });
   }
 
-  return { cupsPerDay };
+  const cupRows = await db
+    .select({ varietyIds: coffees.varietyIds })
+    .from(entries)
+    .innerJoin(coffees, eq(entries.coffeeId, coffees.id));
+  const labelRows = await db
+    .select({ id: vocabularies.id, label: vocabularies.label })
+    .from(vocabularies)
+    .where(eq(vocabularies.kind, "variety"));
+  const labels = new Map(labelRows.map((r) => [r.id, r.label]));
+
+  // A cup counts once for each variety of its coffee.
+  const varietyCounts = new Map<string, number>();
+  for (const row of cupRows) {
+    const ids = row.varietyIds.length > 0 ? row.varietyIds : [NO_VARIETY];
+    for (const id of new Set(ids)) {
+      varietyCounts.set(id, (varietyCounts.get(id) ?? 0) + 1);
+    }
+  }
+  const varieties: VarietyPoint[] = [...varietyCounts].map(([id, count]) => ({
+    id,
+    label: id === NO_VARIETY ? "No variety" : (labels.get(id) ?? id),
+    count,
+  }));
+  varieties.sort((a, b) => {
+    if (a.id === NO_VARIETY) return 1;
+    if (b.id === NO_VARIETY) return -1;
+    return b.count - a.count || a.label.localeCompare(b.label);
+  });
+
+  return { cupsPerDay, varieties, totalCups: cupRows.length };
 }
 
 function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
@@ -81,6 +118,53 @@ function CupsPerDay({ data }: { data: CupsPerDayPoint[] }) {
   );
 }
 
+function Varieties({
+  data,
+  totalCups,
+}: {
+  data: VarietyPoint[];
+  totalCups: number;
+}) {
+  const max = Math.max(1, ...data.map((d) => d.count));
+
+  return (
+    <section aria-labelledby="varieties">
+      <h2 id="varieties" className="text-lg">
+        Varieties
+      </h2>
+      <p className="mt-1 text-sm text-neutral-500">
+        {totalCups} {totalCups === 1 ? "cup" : "cups"} all time. A coffee with
+        several varieties counts once for each.
+      </p>
+      {data.length === 0 ? (
+        <p className="mt-4 text-sm text-neutral-500">No cups yet.</p>
+      ) : (
+        <ul className="mt-4 flex flex-col gap-2">
+          {data.map((d) => (
+            <li
+              key={d.id}
+              data-variety={d.id}
+              data-count={d.count}
+              className="flex items-center gap-3 text-sm"
+            >
+              <span className="w-36 shrink-0 truncate">{d.label}</span>
+              <div className="h-4 flex-1">
+                <div
+                  className="h-full bg-neutral-800"
+                  style={{ width: `${(d.count / max) * 100}%` }}
+                />
+              </div>
+              <span className="w-8 shrink-0 text-right tabular-nums">
+                {d.count}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export default function Stats({ loaderData }: { loaderData: StatsData }) {
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -92,6 +176,10 @@ export default function Stats({ loaderData }: { loaderData: StatsData }) {
       <h1 className="mt-4 text-xl">Stats</h1>
       <div className="mt-6 flex flex-col gap-10">
         <CupsPerDay data={loaderData.cupsPerDay} />
+        <Varieties
+          data={loaderData.varieties}
+          totalCups={loaderData.totalCups}
+        />
       </div>
     </main>
   );
