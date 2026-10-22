@@ -5,6 +5,14 @@ import { useState } from "react";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "~/components/ui/combobox";
 import { Input } from "~/components/ui/input";
 import {
   Select,
@@ -36,6 +44,8 @@ type CoffeeOption = {
   name: string | null;
   roasterName: string | null;
 };
+
+type CoffeeItem = { id: string; label: string };
 
 type CafeOption = { id: string; name: string };
 
@@ -548,13 +558,12 @@ export default function NewEntry({
       value: cafe.id,
     })),
   ];
-  const coffeeItems = [
-    { label: "Select a coffee", value: null },
-    ...loaderData.coffees.map((coffee) => ({
-      label: coffeeLabel(coffee),
-      value: coffee.id,
-    })),
-  ];
+  // The label contains both the coffee name and roaster, so the combobox's
+  // default filtering matches either.
+  const coffeeItems: CoffeeItem[] = loaderData.coffees.map((coffee) => ({
+    id: coffee.id,
+    label: coffeeLabel(coffee),
+  }));
   const roasterItems = [
     { label: "Select a roaster", value: null },
     ...loaderData.roasters.map((roaster) => ({
@@ -669,29 +678,41 @@ export default function NewEntry({
         </fieldset>
 
         {mode === "existing" ? (
-          <label className="flex flex-col text-sm">
+          <div className="flex flex-col text-sm">
             Coffee
-            <Select
+            <Combobox
               name="coffeeId"
-              defaultValue={values?.coffeeId || null}
               items={coffeeItems}
+              autoHighlight
+              defaultValue={
+                coffeeItems.find((item) => item.id === values?.coffeeId) ?? null
+              }
+              itemToStringLabel={(item: CoffeeItem) => item.label}
+              itemToStringValue={(item: CoffeeItem) => item.id}
+              isItemEqualToValue={(left: CoffeeItem, right: CoffeeItem) =>
+                left.id === right.id
+              }
             >
-              <SelectTrigger className="mt-1 w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {coffeeItems
-                    .filter((item) => item.value != null)
-                    .map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </label>
+              <ComboboxInput
+                className="mt-1 w-full"
+                placeholder="Search coffees or roasters"
+                aria-label="Coffee"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") event.preventDefault();
+                }}
+              />
+              <ComboboxContent>
+                <ComboboxEmpty>No matches.</ComboboxEmpty>
+                <ComboboxList>
+                  {(item: CoffeeItem) => (
+                    <ComboboxItem key={item.id} value={item}>
+                      {item.label}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+          </div>
         ) : (
           <>
             <label className="flex flex-col gap-1 text-sm">
