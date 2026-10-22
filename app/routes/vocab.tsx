@@ -3,14 +3,6 @@ import { data, Form, Link, redirect } from "react-router";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { db } from "~/db";
 import { type VocabKind, vocabKinds, vocabularies } from "~/db/schema";
 import { slugifyTerm } from "~/lib/slug";
@@ -18,16 +10,7 @@ import type { Route } from "./+types/vocab";
 
 type VocabTerm = typeof vocabularies.$inferSelect;
 type TermsByKind = Record<VocabKind, VocabTerm[]>;
-type ActionData =
-  | {
-      pick: {
-        varietyIds: string[];
-        processIds: string[];
-        packNoteIds: string[];
-        country: string | null;
-      };
-    }
-  | { error: string; errorKind: string };
+type ActionData = { error: string; errorKind: string };
 
 const addTermSchema = z.object({
   intent: z.literal("add_term"),
@@ -35,14 +18,11 @@ const addTermSchema = z.object({
   label: z.string().trim().min(1, "Label is required"),
 });
 
-const sectionCopy: Record<VocabKind, { title: string; pick: string }> = {
-  variety: { title: "Variety", pick: "Multi-select (stored: variety ids)" },
-  process: { title: "Process", pick: "Multi-select (stored: process ids)" },
-  pack_note: { title: "Pack notes", pick: "Multi-select (stored: note ids)" },
-  origin_country: {
-    title: "Origin country",
-    pick: "Select (stored: ISO id)",
-  },
+const sectionTitles: Record<VocabKind, string> = {
+  variety: "Variety",
+  process: "Process",
+  pack_note: "Pack notes",
+  origin_country: "Origin country",
 };
 
 export async function loader(): Promise<{ termsByKind: TermsByKind }> {
@@ -67,22 +47,8 @@ export async function loader(): Promise<{ termsByKind: TermsByKind }> {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const intent = String(formData.get("intent") ?? "");
-
-  if (intent === "pick_demo") {
-    const pick: ActionData = {
-      pick: {
-        varietyIds: formData.getAll("varietyIds").map(String),
-        processIds: formData.getAll("processIds").map(String),
-        packNoteIds: formData.getAll("packNoteIds").map(String),
-        country: String(formData.get("country") ?? "") || null,
-      },
-    };
-    return data(pick);
-  }
-
   const parsed = addTermSchema.safeParse({
-    intent,
+    intent: formData.get("intent"),
     kind: formData.get("kind"),
     label: formData.get("label"),
   });
@@ -162,22 +128,11 @@ export default function Vocab({
         Stored value is the id. Label is display only.
       </p>
 
-      <form id="pick-demo" method="post">
-        <input type="hidden" name="intent" value="pick_demo" />
-      </form>
-
       {(vocabKinds as readonly VocabKind[]).map((kind) => {
         const terms = termsByKind[kind];
-        const countryItems = [
-          { label: "—", value: null },
-          ...terms.map((term) => ({
-            label: term.label,
-            value: term.id,
-          })),
-        ];
         return (
           <section key={kind} className="mt-8 border border-neutral-300 p-4">
-            <h2 className="text-lg">{sectionCopy[kind].title}</h2>
+            <h2 className="text-lg">{sectionTitles[kind]}</h2>
             <ul className="mt-3 space-y-1">
               {terms.map((term) => (
                 <li key={`${term.kind}:${term.id}`}>
@@ -186,78 +141,6 @@ export default function Vocab({
                 </li>
               ))}
             </ul>
-
-            <p className="mt-4 text-sm text-neutral-500">
-              {sectionCopy[kind].pick}
-            </p>
-            {kind === "variety" ? (
-              <div className="mt-2 flex flex-col gap-1">
-                {terms.map((term) => (
-                  <label key={term.id} className="flex items-center gap-2">
-                    <input
-                      form="pick-demo"
-                      type="checkbox"
-                      name="varietyIds"
-                      value={term.id}
-                    />
-                    {term.label}
-                  </label>
-                ))}
-              </div>
-            ) : null}
-            {kind === "process" ? (
-              <div className="mt-2 flex flex-col gap-1">
-                {terms.map((term) => (
-                  <label key={term.id} className="flex items-center gap-2">
-                    <input
-                      form="pick-demo"
-                      type="checkbox"
-                      name="processIds"
-                      value={term.id}
-                    />
-                    {term.label}
-                  </label>
-                ))}
-              </div>
-            ) : null}
-            {kind === "pack_note" ? (
-              <div className="mt-2 flex flex-col gap-1">
-                {terms.map((term) => (
-                  <label key={term.id} className="flex items-center gap-2">
-                    <input
-                      form="pick-demo"
-                      type="checkbox"
-                      name="packNoteIds"
-                      value={term.id}
-                    />
-                    {term.label}
-                  </label>
-                ))}
-              </div>
-            ) : null}
-            {kind === "origin_country" ? (
-              <Select
-                name="country"
-                form="pick-demo"
-                defaultValue={null}
-                items={countryItems}
-              >
-                <SelectTrigger className="mt-2 w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {countryItems
-                      .filter((item) => item.value != null)
-                      .map((item) => (
-                        <SelectItem key={item.value} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            ) : null}
 
             <Form method="post" className="mt-4 flex flex-wrap items-end gap-2">
               <input type="hidden" name="intent" value="add_term" />
@@ -268,25 +151,12 @@ export default function Vocab({
               </label>
               <Button type="submit">Add</Button>
             </Form>
-            {actionData &&
-            "error" in actionData &&
-            actionData.errorKind === kind ? (
+            {actionData?.errorKind === kind ? (
               <p className="mt-2 text-sm">{actionData.error}</p>
             ) : null}
           </section>
         );
       })}
-
-      <div className="mt-8">
-        <Button form="pick-demo" type="submit" variant="outline">
-          Show stored ids
-        </Button>
-        {actionData && "pick" in actionData ? (
-          <pre className="mt-4 overflow-x-auto border border-neutral-300 p-3 text-sm">
-            {JSON.stringify(actionData.pick, null, 2)}
-          </pre>
-        ) : null}
-      </div>
     </main>
   );
 }

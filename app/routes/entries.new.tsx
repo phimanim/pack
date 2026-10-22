@@ -172,10 +172,6 @@ const schema = z
     description: z.string().nullable(),
     note: z.string().nullable(),
   })
-  .refine((value) => value.cafeId != null || value.newCafeName != null, {
-    message: "Choose or create a café",
-    path: ["cafeId"],
-  })
   .refine(
     (value) => value.coffeeMode !== "existing" || value.coffeeId != null,
     {
@@ -370,8 +366,6 @@ export async function action({ request }: { request: Request }) {
     if (!cafe) return fail("Choose or create a café");
   }
 
-  if (!cafeId) return fail("Choose or create a café");
-
   const packPhoto = fileFromForm(formData, "photo");
   const entryPhoto = fileFromForm(formData, "entryPhoto");
   if (packPhoto && !packPhoto.type.startsWith("image/")) {
@@ -489,7 +483,7 @@ export async function action({ request }: { request: Request }) {
     image: entryImage,
   });
 
-  throw redirect(`/cafes/${cafeId}`);
+  throw redirect(cafeId ? `/cafes/${cafeId}` : `/`);
 }
 
 export default function NewEntry({
@@ -560,7 +554,7 @@ export default function NewEntry({
         className="mt-4 flex flex-col gap-4"
       >
         <label className="flex flex-col text-sm">
-          Café
+          Café *
           <Select
             name="cafeId"
             defaultValue={(values?.cafeId ?? loaderData.selectedCafeId) || null}
@@ -581,6 +575,9 @@ export default function NewEntry({
               </SelectGroup>
             </SelectContent>
           </Select>
+          <span className="text-xs text-neutral-500">
+            Leave empty to log a home brew.
+          </span>
         </label>
         <fieldset className="flex flex-col gap-2 border border-neutral-300 p-3 text-sm">
           <legend>Or create a café</legend>
@@ -660,16 +657,12 @@ export default function NewEntry({
           </label>
         ) : (
           <>
-            <label className="flex cursor-pointer flex-col text-sm">
+            <label className="flex flex-col gap-1 text-sm">
               Photo
-              <span className={`${fieldClass} cursor-pointer text-neutral-500`}>
-                {photoName ?? "select a photo"}
-              </span>
-              <input
+              <Input
                 type="file"
                 name="photo"
                 accept="image/*"
-                className="sr-only"
                 onChange={(event) =>
                   setPhotoName(event.target.files?.[0]?.name ?? null)
                 }
@@ -766,16 +759,12 @@ export default function NewEntry({
           </>
         )}
 
-        <label className="flex cursor-pointer flex-col text-sm">
+        <label className="flex flex-col gap-1 text-sm">
           Cup photo
-          <span className={`${fieldClass} cursor-pointer text-neutral-500`}>
-            {entryPhotoName ?? "select a photo"}
-          </span>
-          <input
+          <Input
             type="file"
             name="entryPhoto"
             accept="image/*"
-            className="sr-only"
             onChange={(event) =>
               setEntryPhotoName(event.target.files?.[0]?.name ?? null)
             }

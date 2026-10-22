@@ -491,20 +491,21 @@ export default function EditCoffee({
         encType="multipart/form-data"
         className="mt-4 flex flex-col gap-4"
       >
-        <label className="flex cursor-pointer flex-col text-sm">
+        <label className="flex flex-col gap-1 text-sm">
           Photo
-          <span className={`${fieldClass} cursor-pointer text-neutral-500`}>
-            {photoName ?? loaderData.coffee.image ?? "select a photo"}
-          </span>
-          <input
+          <Input
             type="file"
             name="photo"
             accept="image/*"
-            className="sr-only"
             onChange={(event) =>
               setPhotoName(event.target.files?.[0]?.name ?? null)
             }
           />
+          {!photoName && loaderData.coffee.image ? (
+            <span className="text-neutral-500">
+              Current photo: {loaderData.coffee.image}
+            </span>
+          ) : null}
         </label>
         <label className="flex flex-col text-sm">
           Name *

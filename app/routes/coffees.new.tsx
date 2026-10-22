@@ -397,16 +397,12 @@ export default function NewCoffee({
         encType="multipart/form-data"
         className="mt-4 flex flex-col gap-4"
       >
-        <label className="flex cursor-pointer flex-col text-sm">
+        <label className="flex flex-col gap-1 text-sm">
           Photo
-          <span className={`${fieldClass} cursor-pointer text-neutral-500`}>
-            {photoName ?? "select a photo"}
-          </span>
-          <input
+          <Input
             type="file"
             name="photo"
             accept="image/*"
-            className="sr-only"
             onChange={(event) =>
               setPhotoName(event.target.files?.[0]?.name ?? null)
             }

@@ -1,8 +1,32 @@
-import { asc, eq, isNotNull, or } from "drizzle-orm";
-import { Form, Link } from "react-router";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { DateTime } from "luxon";
+import { Form, Link, useSearchParams } from "react-router";
 import { Button } from "~/components/ui/button";
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+  useComboboxAnchor,
+} from "~/components/ui/combobox";
 import { db } from "~/db";
-import { coffees, roasters } from "~/db/schema";
+import {
+  cafes,
+  coffees,
+  type Extraction,
+  extractionLabels,
+  entries,
+  type Recipe,
+  roasters,
+  vocabularies,
+} from "~/db/schema";
+
+type Option = { id: string; label: string };
 
 type CoffeeListItem = {
   id: string;
@@ -11,7 +35,67 @@ type CoffeeListItem = {
   roasterName: string | null;
 };
 
-export async function loader(): Promise<{ coffees: CoffeeListItem[] }> {
+type AtHomeEntry = {
+  id: string;
+  tastedAt: string;
+  extraction: Extraction | null;
+  note: string | null;
+  image: string | null;
+  recipe: Recipe | null;
+  coffee: {
+    id: string;
+    name: string | null;
+    roasterName: string | null;
+  };
+};
+
+type OutsideEntry = {
+  id: string;
+  tastedAt: string;
+  extraction: Extraction | null;
+  note: string | null;
+  image: string | null;
+  recipe: Recipe | null;
+  coffee: {
+    id: string;
+    name: string | null;
+    roasterName: string | null;
+  };
+  cafe: {
+    id: string;
+    name: string;
+  };
+};
+
+export async function loader({
+  request,
+}: {
+  request: Request;
+}): Promise<{
+  coffees: CoffeeListItem[];
+  atHomeEntries: AtHomeEntry[];
+  outsideEntries: OutsideEntry[];
+  roasters: Option[];
+  originCountries: Option[];
+}> {
+  const params = new URL(request.url).searchParams;
+  const showAll = params.get("all") === "true";
+  const roasterIds = params.getAll("roaster").filter(Boolean);
+  const countryIds = params.getAll("country").filter(Boolean);
+
+  const conditions = [];
+  if (!showAll) {
+    conditions.push(or(isNotNull(coffees.image), eq(coffees.owned, true)));
+  }
+  if (roasterIds.length > 0) {
+    conditions.push(inArray(coffees.roasterId, roasterIds));
+  }
+  if (countryIds.length > 0) {
+    conditions.push(
+      sql`${coffees.originCountryIds}::text[] && ${sql.param(countryIds)}::text[]`,
+    );
+  }
+
   const rows = await db
     .select({
       id: coffees.id,
@@ -21,18 +105,193 @@ export async function loader(): Promise<{ coffees: CoffeeListItem[] }> {
     })
     .from(coffees)
     .leftJoin(roasters, eq(coffees.roasterId, roasters.id))
-    .where(or(isNotNull(coffees.image), eq(coffees.owned, true)))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(asc(coffees.name));
 
-  return { coffees: rows };
+  const roasterOptions = await db
+    .select({ id: roasters.id, name: roasters.name })
+    .from(roasters)
+    .orderBy(asc(roasters.name));
+
+  const countryTerms = await db
+    .select({ id: vocabularies.id, label: vocabularies.label })
+    .from(vocabularies)
+    .where(eq(vocabularies.kind, "origin_country"))
+    .orderBy(asc(vocabularies.sort), asc(vocabularies.label));
+
+  const atHomeRows = await db
+    .select({
+      id: entries.id,
+      tastedAt: entries.tastedAt,
+      extraction: entries.extraction,
+      note: entries.note,
+      image: entries.image,
+      recipe: entries.recipe,
+      coffeeId: coffees.id,
+      coffeeName: coffees.name,
+      roasterName: roasters.name,
+    })
+    .from(entries)
+    .innerJoin(coffees, eq(entries.coffeeId, coffees.id))
+    .leftJoin(roasters, eq(coffees.roasterId, roasters.id))
+    .where(isNull(entries.cafeId))
+    .orderBy(desc(entries.tastedAt), desc(entries.createdAt));
+
+  const atHomeEntries: AtHomeEntry[] = atHomeRows.map((row) => ({
+    id: row.id,
+    tastedAt: row.tastedAt,
+    extraction: row.extraction,
+    note: row.note,
+    image: row.image,
+    recipe: row.recipe,
+    coffee: {
+      id: row.coffeeId,
+      name: row.coffeeName,
+      roasterName: row.roasterName,
+    },
+  }));
+
+  const outsideRows = await db
+    .select({
+      id: entries.id,
+      tastedAt: entries.tastedAt,
+      extraction: entries.extraction,
+      note: entries.note,
+      image: entries.image,
+      recipe: entries.recipe,
+      coffeeId: coffees.id,
+      coffeeName: coffees.name,
+      roasterName: roasters.name,
+      cafeId: cafes.id,
+      cafeName: cafes.name,
+    })
+    .from(entries)
+    .innerJoin(coffees, eq(entries.coffeeId, coffees.id))
+    .leftJoin(roasters, eq(coffees.roasterId, roasters.id))
+    .innerJoin(cafes, eq(entries.cafeId, cafes.id))
+    .where(isNotNull(entries.cafeId))
+    .orderBy(desc(entries.tastedAt), desc(entries.createdAt));
+
+  const outsideEntries: OutsideEntry[] = outsideRows.map((row) => ({
+    id: row.id,
+    tastedAt: row.tastedAt,
+    extraction: row.extraction,
+    note: row.note,
+    image: row.image,
+    recipe: row.recipe,
+    coffee: {
+      id: row.coffeeId,
+      name: row.coffeeName,
+      roasterName: row.roasterName,
+    },
+    cafe: {
+      id: row.cafeId,
+      name: row.cafeName,
+    },
+  }));
+
+  return {
+    coffees: rows,
+    atHomeEntries,
+    outsideEntries,
+    roasters: roasterOptions.map((roaster) => ({
+      id: roaster.id,
+      label: roaster.name,
+    })),
+    originCountries: countryTerms,
+  };
+}
+
+function FilterCombobox({
+  options,
+  selectedIds,
+  onChange,
+  placeholder,
+}: {
+  options: Option[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+  placeholder: string;
+}) {
+  const anchor = useComboboxAnchor();
+  const selectedOptions = options.filter((option) =>
+    selectedIds.includes(option.id),
+  );
+
+  return (
+    <Combobox
+      multiple
+      items={options}
+      itemToStringLabel={(item: Option) => item.label}
+      itemToStringValue={(item: Option) => item.id}
+      isItemEqualToValue={(left: Option, right: Option) => left.id === right.id}
+      value={selectedOptions}
+      onValueChange={(next: Option | Option[] | null) => {
+        const list = Array.isArray(next) ? next : next ? [next] : [];
+        onChange(list.map((item) => item.id));
+      }}
+    >
+      <ComboboxChips ref={anchor} className="w-full">
+        <ComboboxValue>
+          {selectedOptions.map((option) => (
+            <ComboboxChip key={option.id}>{option.label}</ComboboxChip>
+          ))}
+        </ComboboxValue>
+        <ComboboxChipsInput
+          placeholder={placeholder}
+          aria-label={placeholder}
+        />
+      </ComboboxChips>
+      <ComboboxContent anchor={anchor}>
+        <ComboboxEmpty>No matches.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: Option) => (
+            <ComboboxItem key={item.id} value={item}>
+              {item.label}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
 }
 
 export default function Coffees({
   loaderData,
 }: {
-  loaderData: { coffees: CoffeeListItem[] };
+  loaderData: {
+    coffees: CoffeeListItem[];
+    atHomeEntries: AtHomeEntry[];
+    outsideEntries: OutsideEntry[];
+    roasters: Option[];
+    originCountries: Option[];
+  };
 }) {
-  const { coffees: items } = loaderData;
+  const {
+    coffees: items,
+    atHomeEntries,
+    outsideEntries,
+    roasters: roasterOptions,
+    originCountries: countryOptions,
+  } = loaderData;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const showAll = searchParams.get("all") === "true";
+  const selectedRoasterIds = searchParams.getAll("roaster");
+  const selectedCountryIds = searchParams.getAll("country");
+  const hasFilters =
+    selectedRoasterIds.length > 0 || selectedCountryIds.length > 0;
+
+  function updateFilterParam(param: string, ids: string[]) {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete(param);
+        for (const id of ids) next.append(param, id);
+        return next;
+      },
+      { replace: true },
+    );
+  }
 
   return (
     <main className="p-8">
@@ -57,13 +316,69 @@ export default function Coffees({
           Vocabularies
         </Link>
       </p>
-      <h1 className="mt-4 text-xl">Library</h1>
+      <div className="mt-4 flex items-center justify-between">
+        <h1 className="text-xl">Library</h1>
+        <Button
+          type="button"
+          variant="outline"
+          className="text-xs"
+          onClick={() =>
+            setSearchParams(showAll ? {} : { all: "true" }, { replace: true })
+          }
+        >
+          {showAll ? "Show owned only" : "Show all coffees"}
+        </Button>
+      </div>
+      <div className="mt-4 flex flex-wrap items-end gap-4">
+        <div className="w-full sm:w-64">
+          <p className="mb-1 text-xs text-neutral-500">Roasters</p>
+          <FilterCombobox
+            options={roasterOptions}
+            selectedIds={selectedRoasterIds}
+            onChange={(ids) => updateFilterParam("roaster", ids)}
+            placeholder="All roasters"
+          />
+        </div>
+        <div className="w-full sm:w-64">
+          <p className="mb-1 text-xs text-neutral-500">Countries</p>
+          <FilterCombobox
+            options={countryOptions}
+            selectedIds={selectedCountryIds}
+            onChange={(ids) => updateFilterParam("country", ids)}
+            placeholder="All countries"
+          />
+        </div>
+        {hasFilters ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              setSearchParams(
+                (prev) => {
+                  const next = new URLSearchParams(prev);
+                  next.delete("roaster");
+                  next.delete("country");
+                  return next;
+                },
+                { replace: true },
+              )
+            }
+          >
+            Clear filters
+          </Button>
+        ) : null}
+      </div>
       {items.length === 0 ? (
         <p className="mt-4 text-sm text-neutral-500">
-          No packs in the library.{" "}
-          <Link to="/coffees/new" className="underline">
-            Add a coffee
-          </Link>
+          {hasFilters
+            ? "No packs match your filters."
+            : "No packs in the library. "}
+          {!hasFilters && (
+            <Link to="/coffees/new" className="underline">
+              Add a coffee
+            </Link>
+          )}
         </p>
       ) : (
         <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
@@ -95,6 +410,147 @@ export default function Coffees({
               </Link>
             </li>
           ))}
+        </ul>
+      )}
+      <h2 className="mt-8 text-lg">At home</h2>
+      {atHomeEntries.length === 0 ? (
+        <p className="mt-2 text-sm text-neutral-500">
+          No home brews yet.{" "}
+          <Link to="/entries/new" className="underline">
+            Log a cup
+          </Link>
+        </p>
+      ) : (
+        <ul className="mt-2 border border-neutral-300">
+          {atHomeEntries.map((brew) => {
+            const tasted = DateTime.fromISO(brew.tastedAt).toLocaleString(
+              DateTime.DATE_MED,
+            );
+            const recipe = brew.recipe;
+            return (
+              <li
+                key={brew.id}
+                className="border-b border-neutral-300 px-3 py-2 last:border-b-0"
+              >
+                {brew.image ? (
+                  <img
+                    src={brew.image}
+                    alt=""
+                    className="mb-2 aspect-square w-full max-w-48 border border-neutral-300 object-cover"
+                  />
+                ) : null}
+                <p className="text-sm">{tasted}</p>
+                <p>
+                  <Link
+                    to={`/coffees/${brew.coffee.id}`}
+                    className="underline"
+                  >
+                    {brew.coffee.name ?? "Untitled"}
+                  </Link>
+                  {brew.coffee.roasterName
+                    ? ` · ${brew.coffee.roasterName}`
+                    : null}
+                </p>
+                {brew.extraction ? (
+                  <p className="text-sm text-neutral-500">
+                    {extractionLabels[brew.extraction]}
+                  </p>
+                ) : null}
+                {recipe?.bloomSeconds != null ? (
+                  <p className="text-sm text-neutral-500">
+                    Bloom {recipe.bloomSeconds}s
+                  </p>
+                ) : null}
+                {recipe?.ratio ? (
+                  <p className="text-sm text-neutral-500">{recipe.ratio}</p>
+                ) : null}
+                {recipe?.temperature != null ? (
+                  <p className="text-sm text-neutral-500">
+                    {recipe.temperature}°C
+                  </p>
+                ) : null}
+                {recipe?.description ? (
+                  <p className="text-sm text-neutral-500">
+                    {recipe.description}
+                  </p>
+                ) : null}
+                {brew.note ? <p className="mt-1 text-sm">{brew.note}</p> : null}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <h3 className="mt-6 text-sm font-medium">Cups</h3>
+      {outsideEntries.length === 0 ? (
+        <p className="mt-2 text-sm text-neutral-500">
+          No cups yet.{" "}
+          <Link to="/entries/new" className="underline">
+            Log a cup
+          </Link>
+        </p>
+      ) : (
+        <ul className="mt-2 border border-neutral-300">
+          {outsideEntries.map((cup) => {
+            const tasted = DateTime.fromISO(cup.tastedAt).toLocaleString(
+              DateTime.DATE_MED,
+            );
+            const recipe = cup.recipe;
+            return (
+              <li
+                key={cup.id}
+                className="border-b border-neutral-300 px-3 py-2 last:border-b-0"
+              >
+                {cup.image ? (
+                  <img
+                    src={cup.image}
+                    alt=""
+                    className="mb-2 aspect-square w-full max-w-48 border border-neutral-300 object-cover"
+                  />
+                ) : null}
+                <p className="text-sm">{tasted}</p>
+                <p>
+                  <Link
+                    to={`/coffees/${cup.coffee.id}`}
+                    className="underline"
+                  >
+                    {cup.coffee.name ?? "Untitled"}
+                  </Link>
+                  {cup.coffee.roasterName
+                    ? ` · ${cup.coffee.roasterName}`
+                    : null}
+                </p>
+                <p className="text-sm text-neutral-500">
+                  <Link to={`/cafes/${cup.cafe.id}`} className="underline">
+                    {cup.cafe.name}
+                  </Link>
+                </p>
+                {cup.extraction ? (
+                  <p className="text-sm text-neutral-500">
+                    {extractionLabels[cup.extraction]}
+                  </p>
+                ) : null}
+                {recipe?.bloomSeconds != null ? (
+                  <p className="text-sm text-neutral-500">
+                    Bloom {recipe.bloomSeconds}s
+                  </p>
+                ) : null}
+                {recipe?.ratio ? (
+                  <p className="text-sm text-neutral-500">{recipe.ratio}</p>
+                ) : null}
+                {recipe?.temperature != null ? (
+                  <p className="text-sm text-neutral-500">
+                    {recipe.temperature}°C
+                  </p>
+                ) : null}
+                {recipe?.description ? (
+                  <p className="text-sm text-neutral-500">
+                    {recipe.description}
+                  </p>
+                ) : null}
+                {cup.note ? <p className="mt-1 text-sm">{cup.note}</p> : null}
+              </li>
+            );
+          })}
         </ul>
       )}
       <Form method="post" action="/logout">
