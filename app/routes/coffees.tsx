@@ -10,6 +10,7 @@ import {
   sql,
 } from "drizzle-orm";
 import { Form, Link, useSearchParams } from "react-router";
+import { SiteNav } from "~/components/site-nav";
 import { Button } from "~/components/ui/button";
 import {
   Combobox,
@@ -330,23 +331,7 @@ export default function Coffees({
 
   return (
     <main className="p-8">
-      <p className="text-sm">
-        <Link to="/coffees/new" className="underline">
-          Add a coffee
-        </Link>
-        {" · "}
-        <Link to="/roasters" className="underline">
-          Roasters
-        </Link>
-        {" · "}
-        <Link to="/cafes" className="underline">
-          Cafés
-        </Link>
-        {" · "}
-        <Link to="/vocab" className="underline">
-          Vocabularies
-        </Link>
-      </p>
+      <SiteNav />
       <div className="mt-4 mb-10 flex items-center justify-between border-b-2 border-outline pb-4">
         <h1 className="font-serif text-4xl">Library</h1>
         <Button

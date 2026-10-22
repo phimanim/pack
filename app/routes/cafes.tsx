@@ -1,5 +1,6 @@
 import { asc } from "drizzle-orm";
 import { Link } from "react-router";
+import { SiteNav } from "~/components/site-nav";
 import { db } from "~/db";
 import { cafes } from "~/db/schema";
 
@@ -23,15 +24,7 @@ export default function Cafes({
 
   return (
     <main className="mx-auto p-8">
-      <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
-        <Link to="/cafes/new" className="underline">
-          Add a café
-        </Link>
-      </p>
+      <SiteNav />
       <h1 className="mt-4 mb-10 border-b-2 border-outline pb-4 font-serif text-4xl">
         Cafés
       </h1>

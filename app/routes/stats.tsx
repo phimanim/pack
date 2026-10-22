@@ -1,6 +1,6 @@
 import { count, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import { DateTime } from "luxon";
-import { Link } from "react-router";
+import { SiteNav } from "~/components/site-nav";
 import { db } from "~/db";
 import { coffees, entries, vocabularies } from "~/db/schema";
 import { formatDate, formatMonth } from "~/lib/dates";
@@ -393,11 +393,7 @@ function Varieties({
 export default function Stats({ loaderData }: { loaderData: StatsData }) {
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-      </p>
+      <SiteNav />
       <h1 className="mt-4 font-serif text-4xl">Stats</h1>
       <div className="mt-6 flex flex-col gap-10">
         <CupsPerDay data={loaderData.cupsPerDay} />

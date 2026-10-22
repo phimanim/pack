@@ -1,5 +1,6 @@
-import { data, Form, Link, redirect, useNavigation } from "react-router";
+import { data, Form, redirect, useNavigation } from "react-router";
 import { z } from "zod";
+import { SiteNav } from "~/components/site-nav";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { db } from "~/db";
@@ -67,15 +68,7 @@ export default function NewCafe({ actionData }: { actionData?: ActionData }) {
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <p className="text-sm">
-        <Link to="/" className="underline">
-          Home
-        </Link>
-        {" · "}
-        <Link to="/cafes" className="underline">
-          Cafés
-        </Link>
-      </p>
+      <SiteNav />
       <h1 className="mt-4 font-serif text-4xl">Add a café</h1>
       {actionData?.error ? (
         <p className="mt-4 text-sm">{actionData.error}</p>
