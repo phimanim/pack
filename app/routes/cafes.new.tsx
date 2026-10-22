@@ -61,7 +61,8 @@ export async function action({ request }: { request: Request }) {
 
 export default function NewCafe({ actionData }: { actionData?: ActionData }) {
   const navigation = useNavigation();
-  const isSaving = navigation.state !== "idle";
+  const isSaving =
+    navigation.state !== "idle" && navigation.formMethod === "POST";
   const values = actionData?.values;
   const fieldClass = "border-2 border-outline-variant px-2 py-1";
 

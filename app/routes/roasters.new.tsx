@@ -80,7 +80,8 @@ export default function NewRoaster({
   actionData?: ActionData;
 }) {
   const navigation = useNavigation();
-  const isSaving = navigation.state !== "idle";
+  const isSaving =
+    navigation.state !== "idle" && navigation.formMethod === "POST";
   const values = actionData?.values;
   const fieldClass = "border-2 border-outline-variant px-2 py-1";
 
