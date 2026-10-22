@@ -91,11 +91,16 @@ QA writes real rows, and `.env.local` points at the main database. So every tick
 
 Use the Neon CLI through `npx -y neonctl@2`. Load `NEON_PROJECT_ID`, `PGDATABASE` and `PGUSER` by starting each shell command with `set -a && . ./.env.local && set +a &&`. Shell state doesn't persist between commands, so do this every time. Never print passwords or connection strings in chat or in the ticket.
 
-1. **Auth.** Run `npx -y neonctl@2 me`. If you're not authenticated, stop. Ask the user to run `npx neonctl@2 auth` in their terminal (it opens a browser), then continue. Never fall back to QA on the main database.
-2. **Branch.** Name it `qa-<ticket-slug>` (lowercase, from the ticket name, max ~40 chars). Check `npx -y neonctl@2 branches list --project-id "$NEON_PROJECT_ID"`. If it exists, reuse it. Otherwise create it from the default branch:
+**Every Neon CLI command redirects its output** (`>/dev/null 2>&1`), and you check the exit code instead. `branches create` and `connection-string` print the full connection URI, password included, into the transcript. Only the `CS` helper in step 3 may capture a connection string, into a variable.
+
+**Never Read `.env*` files.** That means no `Read`, `cat`, `head`, `less` or `grep` on the whole file. Check values by name or host only, e.g. `grep -o '^[A-Z_]*=' .env.local` or the host-only `sed` in step 4.
+
+1. **Auth.** Run `npx -y neonctl@2 me >/dev/null 2>&1`. If it fails, stop. Ask the user to run `npx neonctl@2 auth` in their terminal (it opens a browser), then continue. Never fall back to QA on the main database.
+2. **Branch.** Name it `qa-<ticket-slug>` (lowercase, from the ticket name, max ~40 chars). Check it exists without printing the list: `npx -y neonctl@2 branches list --project-id "$NEON_PROJECT_ID" 2>/dev/null | grep -q "qa-<ticket-slug>"`. If it exists, reuse it. Otherwise create it from the default branch:
    ```bash
-   npx -y neonctl@2 branches create --project-id "$NEON_PROJECT_ID" --name "qa-<ticket-slug>" --expires-at "$(date -u -v+7d +%Y-%m-%dT%H:%M:%SZ)"
+   npx -y neonctl@2 branches create --project-id "$NEON_PROJECT_ID" --name "qa-<ticket-slug>" --expires-at "$(date -u -v+7d +%Y-%m-%dT%H:%M:%SZ)" >/dev/null 2>&1 && echo "branch created"
    ```
+   If nothing prints, the create failed. Re-run it without the redirect only to read the error, and make sure no connection string appears in the output.
 3. **Env file.** Write `.env.qa.local` (git-ignored by `.env*.local`), overwriting it for the current ticket. The connection strings contain `&`, so the values **must be single-quoted** or sourcing the file fails:
    ```bash
    B="qa-<ticket-slug>"
@@ -124,7 +129,7 @@ Run every item of the QA plan:
 1. `pnpm check` (use `pnpm check:write` for formatting fixes) and `pnpm typecheck`.
 2. Start the app with `preview_start` `{ name: "dev-qa" }` (http://localhost:5180). This config loads `.env.qa.local` on top of `.env.local`, so the app uses the QA branch and auto login. The middleware in `app/root.tsx` skips the session check when `import.meta.env.DEV && process.env.DEV_AUTO_LOGIN === "1"`, and that check is stripped from production builds. Don't use the password form, and don't use the plain `dev` config for QA (it talks to main). If the page still redirects to `/login`, stop and tell the user instead of working around it. If port 5180 is taken, check what holds it (`lsof -nP -iTCP:5180 -sTCP:LISTEN`). Stop it only if it's a `dev-qa` server from this session; otherwise ask the user, and never kill their own dev servers. After a schema change, restart `dev-qa` (`preview_stop`, then `preview_start`) so it picks up the new code against the migrated branch.
 3. Run each browser scenario exactly as written with the browser tools: really fill the form, really click Save, then navigate to the saved record and read the value back from the page (`read_page` / `get_page_text`). A scenario that stops before save, or doesn't check the saved result, doesn't count as passed. Check console and server logs (`preview_logs`) for errors after each submit, and take a screenshot of the saved result for the main scenario.
-4. QA records stay on the QA branch. Don't clean them up; the branch expires on its own. Still name them so they're recognisable (e.g. a note "QA <ticket name>"). Record the branch name in `## QA results`.
+4. Name QA records so they're recognisable (e.g. a note "QA <ticket name>"). Record the branch name in `## QA results`. The branch is deleted once QA passes (see step 8). If QA fails, keep it so the next run can reuse it.
 
 Tick each item in the ticket (`- [x]`) and append `## QA results` with the date (`yyyy-MM-dd`), what passed, and anything that failed with the error output.
 
@@ -140,5 +145,13 @@ If something fails: fix it and re-run QA. If you can't make it pass, stop — le
 ### 8. Close the ticket
 
 Set `Status` to `Done`. Append the commit hash and branch to `## QA results`.
+
+Then delete the ticket's QA branch, only after QA has passed and the commit exists:
+
+```bash
+set -a && . ./.env.local && set +a && npx -y neonctl@2 branches delete "qa-<ticket-slug>" --project-id "$NEON_PROJECT_ID" >/dev/null 2>&1 && echo "branch deleted"
+```
+
+Delete only `qa-<ticket-slug>` for this ticket. Never delete `main`, another ticket's branch, or any branch that isn't this ticket's own. Afterwards, remove `.env.qa.local` from the worktree and record in `## QA results` that the branch was deleted. If the delete fails, record the error in `## QA results` and tell the user; don't retry blindly.
 
 Report to the user: ticket link, what changed, QA outcome, commit hash, and the QA branch name. If the ticket added a migration, say clearly that the main database hasn't been migrated yet: `pnpm db:migrate` (and `pnpm db:seed` if seeds changed) still has to run against `.env.local` when they ship. Run it only if they ask.
