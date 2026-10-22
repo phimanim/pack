@@ -91,16 +91,18 @@ QA writes real rows, and `.env.local` points at the main database. So every tick
 
 Use the Neon CLI through `npx -y neonctl@2`. Load `NEON_PROJECT_ID`, `PGDATABASE` and `PGUSER` by starting each shell command with `set -a && . ./.env.local && set +a &&`. Shell state doesn't persist between commands, so do this every time. Never print passwords or connection strings in chat or in the ticket.
 
-**Every Neon CLI command redirects its output** (`>/dev/null 2>&1`), and you check the exit code instead. `branches create` and `connection-string` print the full connection URI, password included, into the transcript. Only the `CS` helper in step 3 may capture a connection string, into a variable.
+**Every Neon CLI command redirects its output** (`>/dev/null 2>&1`, or for `branches create` stdout only, with stderr redacted as in step 2), and you check the exit code instead. `branches create` and `connection-string` print the full connection URI, password included, into the transcript. Only the `CS` helper in step 3 may capture a connection string, into a variable.
 
 **Never Read `.env*` files.** That means no `Read`, `cat`, `head`, `less` or `grep` on the whole file. Check values by name or host only, e.g. `grep -o '^[A-Z_]*=' .env.local` or the host-only `sed` in step 4.
 
 1. **Auth.** Run `npx -y neonctl@2 me >/dev/null 2>&1`. If it fails, stop. Ask the user to run `npx neonctl@2 auth` in their terminal (it opens a browser), then continue. Never fall back to QA on the main database.
 2. **Branch.** Name it `qa-<ticket-slug>` (lowercase, from the ticket name, max ~40 chars). Check it exists without printing the list: `npx -y neonctl@2 branches list --project-id "$NEON_PROJECT_ID" 2>/dev/null | grep -q "qa-<ticket-slug>"`. If it exists, reuse it. Otherwise create it from the default branch:
    ```bash
-   npx -y neonctl@2 branches create --project-id "$NEON_PROJECT_ID" --name "qa-<ticket-slug>" --expires-at "$(date -u -v+7d +%Y-%m-%dT%H:%M:%SZ)" >/dev/null 2>&1 && echo "branch created"
+   ERR=$(npx -y neonctl@2 branches create --project-id "$NEON_PROJECT_ID" --name "qa-<ticket-slug>" --expires-at "$(date -u -v+7d +%Y-%m-%dT%H:%M:%SZ)" 2>&1 >/dev/null) \
+     && echo "branch created" \
+     || printf '%s\n' "$ERR" | sed -E 's#postgres(ql)?://[^[:space:]]*#<redacted>#g'
    ```
-   If nothing prints, the create failed. Re-run it without the redirect only to read the error, and make sure no connection string appears in the output.
+   stdout (where the connection URI goes) is always discarded. On failure only stderr is shown, with any URI redacted. **Never re-run `branches create` without the stdout redirect**: if the retry succeeds, the password lands in the transcript. Fix the cause from the redacted error and run the same command again.
 3. **Env file.** Write `.env.qa.local` (git-ignored by `.env*.local`), overwriting it for the current ticket. The connection strings contain `&`, so the values **must be single-quoted** or sourcing the file fails:
    ```bash
    B="qa-<ticket-slug>"
