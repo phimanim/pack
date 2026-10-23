@@ -33,7 +33,6 @@ export function SiteNav() {
       </p>
       {pathname === "/entries/new" ? null : (
         <Button render={<Link to="/entries/new" />} data-testid="nav-log-cup">
-          <Coffee data-icon="inline-start" />
           Log a cup
         </Button>
       )}
